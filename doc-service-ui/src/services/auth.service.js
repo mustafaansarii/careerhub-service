@@ -69,6 +69,14 @@ class AuthService {
         return localStorage.getItem('isAuthenticated') === 'true';
     }
 
+    /**
+     * Starts an OAuth login by navigating the browser (full page) to the backend authorization
+     * endpoint through the proxy, so the access-token cookie is set on this (:5173) origin.
+     */
+    loginWithProvider(provider) {
+        window.location.href = `/careerhub/oauth2/authorization/${provider}`;
+    }
+
     /** Silently confirm the session cookie is still valid (used on app load). */
     async verifyAuth() {
         try {

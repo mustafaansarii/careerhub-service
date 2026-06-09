@@ -1,12 +1,13 @@
 package com.docservice.careerhub.service;
 
-import com.docservice.careerhub.config.AuthProperties;
+import com.docservice.careerhub.config.AppProperties;
 import com.docservice.careerhub.dto.constants.Role;
 import com.docservice.careerhub.dto.request.DeviceMetadata;
 import com.docservice.careerhub.dto.request.SigninRequest;
 import com.docservice.careerhub.dto.request.SignupRequest;
 import com.docservice.careerhub.dto.response.MessageResponse;
 import com.docservice.careerhub.entity.AuthUser;
+import com.docservice.careerhub.entity.UserSession;
 import com.docservice.careerhub.exception.ApiException;
 import com.docservice.careerhub.repo.AuthUserRepository;
 import com.docservice.careerhub.repo.UserSessionRepository;
@@ -48,8 +49,10 @@ class AuthServiceTest {
         sessionRepo = mock(UserSessionRepository.class);
         encoder = new BCryptPasswordEncoder();
         mailService = mock(MailService.class);
-        AuthProperties props = new AuthProperties();
-        props.getJwt().setSecret("0123456789012345678901234567890123456789"); // 40 chars
+        AppProperties props = new AppProperties();
+        props.setJwtSecret("0123456789012345678901234567890123456789"); // 40 chars
+        props.setJwtExpiryMs(3600000L);
+        props.setSessionExpiryMs(2592000000L); // 30 days
         jwtService = new JwtService(props);
 
         service = new AuthService();
@@ -58,7 +61,7 @@ class AuthServiceTest {
         ReflectionTestUtils.setField(service, "passwordEncoder", encoder);
         ReflectionTestUtils.setField(service, "mailService", mailService);
         ReflectionTestUtils.setField(service, "jwtService", jwtService);
-        ReflectionTestUtils.setField(service, "authProperties", props);
+        ReflectionTestUtils.setField(service, "appProperties", props);
     }
 
     private SignupRequest signupRequest() {
@@ -203,8 +206,85 @@ class AuthServiceTest {
     }
 
     @Test
+    void loginWithOAuthCreatesAccountWhenMissing() {
+        when(userRepo.findByEmail("new@example.com")).thenReturn(Optional.empty());
+        when(userRepo.save(any(AuthUser.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(sessionRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        AuthService.LoginResult result =
+                service.loginWithOAuth("new@example.com", "New User", "GOOGLE", DEVICE);
+
+        AuthUser user = result.user();
+        assertThat(user.getEmail()).isEqualTo("new@example.com");
+        assertThat(user.getFullName()).isEqualTo("New User");
+        assertThat(user.isVerified()).isTrue();
+        assertThat(user.getProvider()).isEqualTo("GOOGLE");
+        assertThat(user.getRoles()).containsExactly(Role.USER);
+        assertThat(jwtService.valid(result.accessToken())).isTrue();
+        assertThat(jwtService.getEmail(result.accessToken())).isEqualTo("new@example.com");
+        verify(sessionRepo).save(any());
+    }
+
+    @Test
+    void loginWithOAuthLogsInExistingUserAndLinksProvider() {
+        AuthUser existing = verifiedUser();
+        existing.setId(7L);
+        when(userRepo.findByEmail("user@example.com")).thenReturn(Optional.of(existing));
+        when(userRepo.save(any(AuthUser.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(sessionRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        AuthService.LoginResult result =
+                service.loginWithOAuth("user@example.com", "Ignored Name", "GITHUB", DEVICE);
+
+        // keeps the existing account (does not overwrite the original full name)
+        assertThat(result.user().getId()).isEqualTo(7L);
+        assertThat(result.user().getFullName()).isEqualTo("User");
+        assertThat(result.user().getProvider()).isEqualTo("GITHUB");
+        assertThat(jwtService.valid(result.accessToken())).isTrue();
+        verify(sessionRepo).save(any());
+    }
+
+    @Test
     void revokeSessionDeletesByTokenId() {
         service.revokeSession("jti-1");
         verify(sessionRepo).deleteByTokenId("jti-1");
+    }
+
+    @Test
+    void validateAndTouchSessionSlidesActiveSession() {
+        UserSession session = new UserSession();
+        session.setTokenId("jti-1");
+        session.setExpiresAt(Instant.now().plusSeconds(60));
+        when(sessionRepo.findByTokenId("jti-1")).thenReturn(Optional.of(session));
+
+        boolean active = service.validateAndTouchSession("jti-1");
+
+        assertThat(active).isTrue();
+        // expiry slid ~30 days into the future
+        assertThat(session.getExpiresAt()).isAfter(Instant.now().plusSeconds(86400));
+        verify(sessionRepo).save(session);
+        verify(sessionRepo, never()).delete(any());
+    }
+
+    @Test
+    void validateAndTouchSessionRejectsAndDeletesExpired() {
+        UserSession session = new UserSession();
+        session.setTokenId("jti-1");
+        session.setExpiresAt(Instant.now().minusSeconds(10));
+        when(sessionRepo.findByTokenId("jti-1")).thenReturn(Optional.of(session));
+
+        boolean active = service.validateAndTouchSession("jti-1");
+
+        assertThat(active).isFalse();
+        verify(sessionRepo).delete(session);
+        verify(sessionRepo, never()).save(any());
+    }
+
+    @Test
+    void validateAndTouchSessionRejectsMissingSession() {
+        when(sessionRepo.findByTokenId("jti-x")).thenReturn(Optional.empty());
+
+        assertThat(service.validateAndTouchSession("jti-x")).isFalse();
+        assertThat(service.validateAndTouchSession(null)).isFalse();
     }
 }

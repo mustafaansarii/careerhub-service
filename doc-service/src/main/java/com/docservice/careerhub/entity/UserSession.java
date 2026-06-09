@@ -12,7 +12,6 @@ import lombok.Data;
 
 import java.time.Instant;
 
-/** One row per device login. Identified by the JWT id (jti); deleted on logout/revocation. */
 @Data
 @Entity
 @Table(name = "user_sessions", indexes = {

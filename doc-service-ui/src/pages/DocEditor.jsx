@@ -1,10 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import axios from 'axios';
 import toast from 'react-hot-toast';
-
-const api = axios.create({ baseURL: '/careerhub/', withCredentials: true });
+import docService from '../services/doc.service';
 
 export default function DocEditor() {
     const { id } = useParams();
@@ -14,19 +12,19 @@ export default function DocEditor() {
 
     const [doc, setDoc] = useState(prefetched);
     const [loadingDoc, setLoadingDoc] = useState(!prefetched);
-    const [code, setCode] = useState(prefetched?.documentLatexCode || '');
-    const [pdfUrl, setPdfUrl] = useState(prefetched?.documentPdfUrl || '');
+    const [code, setCode] = useState(prefetched?.latexCode || '');
+    const [pdfUrl, setPdfUrl] = useState(prefetched?.pdfUrl || '');
     const [compiling, setCompiling] = useState(false);
     const blobUrlRef = useRef(null);
     const handleCompileRef = useRef(null);
 
     useEffect(() => {
         if (prefetched) return;
-        api.get(`user-docs/${id}`)
-            .then((res) => {
-                setDoc(res.data);
-                setCode(res.data.documentLatexCode || '');
-                setPdfUrl(res.data.documentPdfUrl || '');
+        docService.getUserDoc(id)
+            .then((data) => {
+                setDoc(data);
+                setCode(data.latexCode || '');
+                setPdfUrl(data.pdfUrl || '');
             })
             .catch(() => toast.error('Failed to load document'))
             .finally(() => setLoadingDoc(false));
@@ -55,28 +53,26 @@ export default function DocEditor() {
         if (compiling) return;
         setCompiling(true);
         try {
-            const res = await api.post(
-                'doc-compiler/compile',
-                { userTemplateId: Number(id), latexCode: code },
-                { responseType: 'blob' }
-            );
+            const data = await docService.compile(id, code);
 
             if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
 
-            const blob = new Blob([res.data], { type: 'application/pdf' });
+            const blob = new Blob([data], { type: 'application/pdf' });
             const url = URL.createObjectURL(blob);
             blobUrlRef.current = url;
             setPdfUrl(url);
+            toast.success('Compiled');
         } catch (err) {
             let msg = 'Compilation failed';
             if (err?.response?.data instanceof Blob) {
                 try {
-                    const text = await err.response.data.text();
-                    const parsed = JSON.parse(text);
+                    const parsed = JSON.parse(await err.response.data.text());
                     msg = parsed?.message || msg;
                 } catch { /* ignore */ }
+            } else {
+                msg = err?.response?.data?.message || msg;
             }
-            toast.error('Compilation error, please try later');
+            toast.error(msg);
         } finally {
             setCompiling(false);
         }
@@ -101,7 +97,7 @@ export default function DocEditor() {
                     </button>
                     <div className="h-3.5 w-px bg-slate-200" />
                     <span className="truncate text-xs font-medium text-slate-500">
-                        {loadingDoc ? 'Loading…' : (doc?.documentName ?? 'Document Editor')}
+                        {loadingDoc ? 'Loading…' : (doc?.name ?? 'Document Editor')}
                     </span>
                 </div>
 
@@ -141,7 +137,7 @@ export default function DocEditor() {
                     {pdfUrl && (
                         <a
                             href={pdfUrl}
-                            download={`${doc?.documentName ?? 'document'}.pdf`}
+                            download={`${doc?.name ?? 'document'}.pdf`}
                             className="flex items-center gap-1 rounded px-1.5 py-1 text-xs text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
                         >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5">

@@ -1,9 +1,9 @@
 package com.docservice.careerhub.service;
 
+import com.docservice.careerhub.config.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -19,12 +19,13 @@ public class MailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
-    @Value("${spring.mail.username:}")
-    private String fromAddress;
+    @Autowired
+    private AppProperties appProperties;
 
     public void sendOtp(String toEmail, String otp) {
         String body = "Your verification code is " + otp + ". It expires in 5 minutes.";
-        if (Objects.isNull(mailSender) || fromAddress.isBlank()) {
+        String fromAddress = appProperties.getMailFrom();
+        if (Objects.isNull(mailSender) || Objects.isNull(fromAddress) || fromAddress.isBlank()) {
             LOGGER.warn("Mail not configured — OTP for {} is {}", toEmail, otp);
             return;
         }

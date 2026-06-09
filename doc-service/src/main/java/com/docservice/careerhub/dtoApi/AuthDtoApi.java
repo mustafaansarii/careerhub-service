@@ -18,10 +18,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
-/**
- * Orchestration layer: validates request forms, delegates to the service, maps entities to
- * response forms, and attaches the auth cookie to the HTTP response (the one place cookies live).
- */
 @Component
 public class AuthDtoApi extends AbstractDtoUtil {
 
@@ -38,14 +34,14 @@ public class AuthDtoApi extends AbstractDtoUtil {
 
     public UserResponse register(SignupRequest request) {
         validate(request);
-        return toResponse(authService.register(request));
+        return toUserResponse(authService.register(request));
     }
 
     public UserResponse signin(SigninRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         validate(request);
         AuthService.LoginResult result = authService.login(request, RequestMetadataExtractor.extract(httpRequest));
         httpResponse.addHeader(HttpHeaders.SET_COOKIE, authCookies.access(result.accessToken()).toString());
-        return toResponse(result.user());
+        return toUserResponse(result.user());
     }
 
     public MessageResponse logout(Authentication authentication, HttpServletResponse httpResponse) {
@@ -55,12 +51,14 @@ public class AuthDtoApi extends AbstractDtoUtil {
     }
 
     public UserResponse me(Authentication authentication) {
-        return toResponse(authService.getActiveUser(authentication.getName()));
+        AuthUser user = authService.getActiveUser(authentication.getName());
+        UserResponse response = toUserResponse(user);
+        return response;
     }
 
     // ── private helpers ─────────────────────────────────────────────────
 
-    private UserResponse toResponse(AuthUser user) {
+    private UserResponse toUserResponse(AuthUser user) {
         return UserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())

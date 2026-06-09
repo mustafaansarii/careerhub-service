@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import authService from '../../services/auth.service';
+import OAuthButtons from './OAuthButtons';
 
 const inputClass =
     'w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-400/20';
@@ -53,6 +54,8 @@ export default function AuthLoginPage() {
                     {loading ? 'Signing you in…' : 'Sign in'}
                 </button>
             </form>
+
+            <OAuthButtons />
 
             <p className="mt-5 text-center text-[11px] text-slate-500 dark:text-slate-400">
                 New to DocService?{' '}

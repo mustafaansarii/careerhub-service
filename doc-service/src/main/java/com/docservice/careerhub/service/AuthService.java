@@ -1,6 +1,6 @@
 package com.docservice.careerhub.service;
 
-import com.docservice.careerhub.config.AuthProperties;
+import com.docservice.careerhub.config.AppProperties;
 import com.docservice.careerhub.dto.request.DeviceMetadata;
 import com.docservice.careerhub.dto.request.SigninRequest;
 import com.docservice.careerhub.dto.request.SignupRequest;
@@ -46,7 +46,7 @@ public class AuthService {
     private JwtService jwtService;
 
     @Autowired
-    private AuthProperties authProperties;
+    private AppProperties appProperties;
 
     public record LoginResult(AuthUser user, String accessToken) {
     }
@@ -95,6 +95,28 @@ public class AuthService {
         return new LoginResult(user, token);
     }
 
+    /**
+     * Logs a user in via an OAuth provider (Google/GitHub). If no account exists for the email, one
+     * is created on the spot (verified, no password, default role). Existing accounts are linked and
+     * logged in regardless of how they were originally created. Then a normal session + JWT is issued.
+     */
+    @Transactional
+    public LoginResult loginWithOAuth(String email, String fullName, String provider, DeviceMetadata device) {
+        AuthUser user = authUserRepository.findByEmail(email).orElseGet(() -> new AuthUser());
+        if (Objects.isNull(user.getId())) {
+            user.setEmail(email);
+            user.setFullName(Objects.requireNonNullElse(fullName, email));
+        }
+        user.setVerified(true);          // provider has verified the email
+        user.setProvider(provider);
+        AuthUser saved = authUserRepository.save(user);
+
+        String tokenId = createSession(saved.getEmail(), device);
+        List<String> roleNames = saved.getRoles().stream().map(Enum::name).toList();
+        String token = jwtService.generate(saved.getEmail(), tokenId, roleNames);
+        return new LoginResult(saved, token);
+    }
+
     @Transactional
     public void revokeSession(String tokenId) {
         if (Objects.nonNull(tokenId)) {
@@ -102,9 +124,27 @@ public class AuthService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public boolean isSessionActive(String tokenId) {
-        return Objects.nonNull(tokenId) && userSessionRepository.existsByTokenId(tokenId);
+    /**
+     * Confirms the session still exists and has not lapsed, then slides its expiry forward. Returns
+     * false (deleting a lapsed row) when the session is gone or expired. Sliding the window on every
+     * request is what keeps an active user logged in until they explicitly log out.
+     */
+    @Transactional
+    public boolean validateAndTouchSession(String tokenId) {
+        if (Objects.isNull(tokenId)) {
+            return false;
+        }
+        UserSession session = userSessionRepository.findByTokenId(tokenId).orElse(null);
+        if (Objects.isNull(session)) {
+            return false;
+        }
+        if (Objects.nonNull(session.getExpiresAt()) && session.getExpiresAt().isBefore(Instant.now())) {
+            userSessionRepository.delete(session);
+            return false;
+        }
+        session.setExpiresAt(Instant.now().plus(appProperties.getSessionExpiryMs(), ChronoUnit.MILLIS));
+        userSessionRepository.save(session);
+        return true;
     }
 
     @Transactional(readOnly = true)
@@ -133,7 +173,7 @@ public class AuthService {
         session.setUserEmail(email);
         session.setUserAgent(device.userAgent());
         session.setIpAddress(device.ipAddress());
-        session.setExpiresAt(Instant.now().plus(authProperties.getJwt().getExpiryMs(), ChronoUnit.MILLIS));
+        session.setExpiresAt(Instant.now().plus(appProperties.getSessionExpiryMs(), ChronoUnit.MILLIS));
         userSessionRepository.save(session);
         return session.getTokenId();
     }

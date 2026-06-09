@@ -11,18 +11,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Loads role-based endpoint access rules from {@code user-roles.csv}.
- * CSV columns: {@code method,path,roles} where roles are '|'-separated bare role names.
- * Lines starting with '#', blanks, and the header row are ignored.
- */
 @Component
 public class RoleEndpointAccessLoader {
 
     private static final String CSV_PATH = "user-roles.csv";
     private static final String HEADER_PREFIX = "method,";
 
-    /** One access rule: an HTTP method + path pattern restricted to the given roles. */
     public record AccessRule(HttpMethod method, String pattern, String[] roles) {
     }
 

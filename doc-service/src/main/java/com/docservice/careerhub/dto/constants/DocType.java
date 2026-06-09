@@ -1,5 +1,4 @@
-package com.docservice.careerhub.dto.constans;
-
+package com.docservice.careerhub.dto.constants;
 
 public enum DocType {
     JOURNAL_ARTICLES,

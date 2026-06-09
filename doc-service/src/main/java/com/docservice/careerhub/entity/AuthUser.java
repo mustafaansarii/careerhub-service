@@ -36,8 +36,9 @@ public class AuthUser {
     @Column(nullable = false)
     private String fullName;
 
-    @Column(nullable = false)
     private String password;
+
+    private String provider;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "auth_user_roles", joinColumns = @JoinColumn(name = "user_id"))

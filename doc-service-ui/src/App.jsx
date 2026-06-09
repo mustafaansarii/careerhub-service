@@ -16,7 +16,7 @@ import authService from './services/auth.service';
 import ContactUsPage from './pages/contact-us';
 import PricingPage from './pages/pricing';
 import DocTemplates from './pages/DocTemplates';
-import Templates from './components/DocTemplate/Templates';
+import MyTemplates from './pages/MyTemplates';
 import SettingsPage from './pages/SettingsPage';
 
 function App() {
@@ -67,11 +67,7 @@ function App() {
           path="/my-templates"
           element={
             <PrivateRoute>
-              <Templates
-                apiPath="user-docs/metadata"
-                pageTitle="My Templates"
-                pageDescription="All the document templates you have saved to your account."
-              />
+              <MyTemplates />
             </PrivateRoute>
           }
         />

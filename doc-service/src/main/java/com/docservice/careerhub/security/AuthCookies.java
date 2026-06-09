@@ -1,6 +1,6 @@
 package com.docservice.careerhub.security;
 
-import com.docservice.careerhub.config.AuthProperties;
+import com.docservice.careerhub.config.AppProperties;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
@@ -14,13 +14,14 @@ public class AuthCookies {
     private final String path;
     private final long maxAgeSeconds;
 
-    public AuthCookies(AuthProperties authProperties) {
-        AuthProperties.Cookie cookie = authProperties.getCookie();
-        this.name = cookie.getName();
-        this.secure = cookie.isSecure();
-        this.sameSite = cookie.getSameSite();
-        this.path = cookie.getPath();
-        this.maxAgeSeconds = authProperties.getJwt().getExpiryMs() / 1000;
+    public AuthCookies(AppProperties appProperties) {
+        this.name = appProperties.getCookieName();
+        this.secure = appProperties.isCookieSecure();
+        this.sameSite = appProperties.getCookieSameSite();
+        this.path = appProperties.getCookiePath();
+        // Cookie lives as long as the session, not the short access token, so the browser keeps
+        // sending the (possibly expired) token and the filter can silently re-issue it.
+        this.maxAgeSeconds = appProperties.getSessionExpiryMs() / 1000;
     }
 
     public String name() {
