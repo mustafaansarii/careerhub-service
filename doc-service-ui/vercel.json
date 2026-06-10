@@ -8,7 +8,7 @@
     "rewrites": [
         {
             "source": "/careerhub/:path*",
-            "destination": "https://careerhub-2-app.onrender.com/:path*"
+            "destination": "https://doc-service-srwe.onrender.com/:path*"
         },
         {
             "source": "/(.*)",
