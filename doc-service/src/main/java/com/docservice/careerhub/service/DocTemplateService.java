@@ -15,14 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Builds document templates: persists each as PENDING, then compiles the LaTeX to a PDF, uploads it
- * to storage, and records the link (READY) — or captures the error (FAILED). One template's failure
- * does not abort the rest of a batch.
- *
- * <p>Compilation runs synchronously here; because it is isolated in {@link #buildTemplate}, moving
- * it to a background worker later is just a matter of annotating that method {@code @Async}.
- */
+
 @Service
 public class DocTemplateService {
 

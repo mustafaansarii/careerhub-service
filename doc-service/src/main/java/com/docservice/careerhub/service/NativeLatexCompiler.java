@@ -16,14 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Compiles LaTeX by invoking the system-installed {@code pdflatex} binary directly.
- * <p>
- * Use this in environments where Docker is unavailable (e.g. Render, Railway, fly.io).
- * Enable with: {@code latex.compiler=native} in application properties / environment.
- * </p>
- * Requires {@code texlive-latex-base} (or {@code texlive-full}) installed in the image.
- */
+
 @Service
 @ConditionalOnProperty(name = "latex.compiler", havingValue = "native")
 public class NativeLatexCompiler implements LatexCompiler {
