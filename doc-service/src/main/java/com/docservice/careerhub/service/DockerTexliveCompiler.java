@@ -5,6 +5,7 @@ import com.docservice.careerhub.exception.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @Service
+@ConditionalOnProperty(name = "latex.compiler", havingValue = "docker", matchIfMissing = true)
 public class DockerTexliveCompiler implements LatexCompiler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerTexliveCompiler.class);
@@ -31,7 +33,12 @@ public class DockerTexliveCompiler implements LatexCompiler {
     public byte[] compile(String latexCode) {
         Path workDir = createWorkDir();
         try {
-            Files.writeString(workDir.resolve(TEX_FILE), latexCode, StandardCharsets.UTF_8);
+            Path texFile = workDir.resolve(TEX_FILE);
+            Files.writeString(texFile, latexCode, StandardCharsets.UTF_8);
+            // The Docker container may run as a different UID; make the file world-readable/writable
+            // so pdflatex can read main.tex and write auxiliary files (main.log, main.aux, etc.)
+            texFile.toFile().setReadable(true, false);
+            texFile.toFile().setWritable(true, false);
             String output = runPdflatex(workDir);
             Path pdf = workDir.resolve(PDF_FILE);
             if (!Files.exists(pdf)) {
@@ -46,9 +53,12 @@ public class DockerTexliveCompiler implements LatexCompiler {
     }
 
     private String runPdflatex(Path workDir) {
+        // `:z` relabels the host dir for SELinux (required on Fedora/RHEL).
+        // Without this flag, the container gets "Permission denied" on the mounted files.
+        String volumeMount = workDir.toAbsolutePath() + ":/work:z";
         List<String> command = List.of(
                 "docker", "run", "--rm",
-                "-v", workDir.toAbsolutePath() + ":/work",
+                "-v", volumeMount,
                 "-w", "/work",
                 appProperties.getLatexDockerImage(),
                 "pdflatex", "-interaction=nonstopmode", "-halt-on-error", TEX_FILE);
@@ -77,7 +87,13 @@ public class DockerTexliveCompiler implements LatexCompiler {
 
     private Path createWorkDir() {
         try {
-            return Files.createTempDirectory("latex-");
+            Path dir = Files.createTempDirectory("latex-");
+            // Make the directory world-writable so the Docker container (which may run as
+            // a different UID, e.g. root inside texlive/texlive) can write main.tex / main.pdf.
+            dir.toFile().setWritable(true, false);
+            dir.toFile().setReadable(true, false);
+            dir.toFile().setExecutable(true, false);
+            return dir;
         } catch (IOException exception) {
             throw ApiException.badData("Could not create a workspace for compilation: " + exception.getMessage());
         }

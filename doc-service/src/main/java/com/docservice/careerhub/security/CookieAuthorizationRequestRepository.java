@@ -27,7 +27,7 @@ public class CookieAuthorizationRequestRepository
         implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
     private static final String COOKIE_NAME = "OAUTH2_AUTH_REQUEST";
-    private static final int EXPIRE_SECONDS = 180;
+    private static final int EXPIRE_SECONDS = 600;
 
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {

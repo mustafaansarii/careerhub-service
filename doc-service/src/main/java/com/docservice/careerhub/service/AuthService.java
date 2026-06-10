@@ -103,9 +103,12 @@ public class AuthService {
     @Transactional
     public LoginResult loginWithOAuth(String email, String fullName, String provider, DeviceMetadata device) {
         AuthUser user = authUserRepository.findByEmail(email).orElseGet(() -> new AuthUser());
-        if (Objects.isNull(user.getId())) {
+        boolean isNew = Objects.isNull(user.getId());
+        if (isNew) {
             user.setEmail(email);
             user.setFullName(Objects.requireNonNullElse(fullName, email));
+            // DB requires a password column; OAuth-only accounts get an unusable random secret.
+            user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
         }
         user.setVerified(true);          // provider has verified the email
         user.setProvider(provider);

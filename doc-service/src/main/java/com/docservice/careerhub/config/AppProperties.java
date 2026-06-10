@@ -87,4 +87,7 @@ public class AppProperties {
 
     @Value("${latex.compile-timeout-seconds:120}")
     private long latexCompileTimeoutSeconds;
+
+    @Value("${latex.compiler:${LATEX_COMPILER:docker}}")
+    private String latexCompiler;
 }
