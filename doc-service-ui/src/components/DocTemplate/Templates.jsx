@@ -30,17 +30,6 @@ const STATUS_BADGE = {
 };
 
 function TemplateCard({ doc, actionLabel, onAction, isBusy }) {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const menuRef = useRef(null);
-
-    useEffect(() => {
-        const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, []);
-
-    const choose = (mode) => { setMenuOpen(false); onAction(doc, mode); };
-
     return (
         <div className="group relative flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
             <div className="relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100" style={{ aspectRatio: '3/4' }}>
@@ -65,7 +54,7 @@ function TemplateCard({ doc, actionLabel, onAction, isBusy }) {
                 )}
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                     <button
-                        onClick={() => choose('form')}
+                        onClick={() => onAction(doc)}
                         disabled={isBusy}
                         className="flex items-center gap-1.5 rounded-full bg-teal-600 px-4 py-1.5 text-xs font-semibold text-white shadow transition hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-60"
                     >
@@ -76,35 +65,14 @@ function TemplateCard({ doc, actionLabel, onAction, isBusy }) {
 
             <div className="flex items-center justify-between gap-2 px-3 py-2.5">
                 <p className="truncate text-sm font-medium text-slate-800" title={doc.name}>{doc.name}</p>
-
-                {/* 3-dot menu: choose form (default) or LaTeX editor */}
-                <div ref={menuRef} className="relative shrink-0">
-                    <button
-                        onClick={() => setMenuOpen((v) => !v)}
-                        title="More options"
-                        className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition hover:border-teal-400 hover:text-teal-600"
-                    >
-                        <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-                            <circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" />
+                {doc.pdfUrl && (
+                    <a href={doc.pdfUrl} target="_blank" rel="noreferrer" title="Download PDF"
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition hover:border-teal-400 hover:text-teal-600">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" />
                         </svg>
-                    </button>
-                    {menuOpen && (
-                        <div className="absolute bottom-9 right-0 z-20 w-48 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-                            <button onClick={() => choose('form')} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">
-                                ✏️ Edit with form
-                            </button>
-                            <button onClick={() => choose('latex')} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">
-                                {'</>'} Edit with LaTeX editor
-                            </button>
-                            {doc.pdfUrl && (
-                                <a href={doc.pdfUrl} target="_blank" rel="noreferrer" onClick={() => setMenuOpen(false)}
-                                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">
-                                    ⬇️ Download PDF
-                                </a>
-                            )}
-                        </div>
-                    )}
-                </div>
+                    </a>
+                )}
             </div>
         </div>
     );
@@ -200,14 +168,13 @@ export default function Templates({ mode = 'templates' }) {
     const [error, setError] = useState(null);
     const [busyId, setBusyId] = useState(null);
 
-    const handleAction = async (doc, mode = 'form') => {
+    const handleAction = async (doc) => {
         if (busyId) return;
-        const route = (docId) => (mode === 'latex' ? `/doc-editor/${docId}` : `/resume-editor/${docId}`);
         setBusyId(doc.id);
         try {
             if (isUserDocs) {
                 const full = await docService.getUserDoc(doc.id);
-                navigate(route(doc.id), { state: { doc: full } });
+                navigate(`/doc-editor/${doc.id}`, { state: { doc: full } });
             } else {
                 if (!authService.isAuthenticated()) {
                     toast('Sign in to start editing');
@@ -215,7 +182,7 @@ export default function Templates({ mode = 'templates' }) {
                     return;
                 }
                 const saved = await docService.saveTemplateToAccount(doc.id);
-                navigate(route(saved.id), { state: { doc: saved } });
+                navigate(`/doc-editor/${saved.id}`, { state: { doc: saved } });
             }
         } catch (err) {
             toast.error(err?.response?.data?.message || 'Failed to open the editor');

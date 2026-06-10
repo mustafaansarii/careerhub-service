@@ -27,7 +27,7 @@ export default function MinimalNavbar() {
 
                     {/* Brand name */}
                     <span className="text-base text-white font-bold tracking-widest">
-                        DOCSERVICE
+                        CAREERHUB
                     </span>
                 </button>
             </nav>

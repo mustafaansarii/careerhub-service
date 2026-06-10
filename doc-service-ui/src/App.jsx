@@ -11,7 +11,6 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import Footer from './components/footer/Footer';
 import DocEditor from './pages/DocEditor';
-import ResumeFormEditor from './pages/ResumeFormEditor';
 import NotFound from './components/not-found/NotFound';
 import authService from './services/auth.service';
 import ContactUsPage from './pages/contact-us';
@@ -77,14 +76,6 @@ function App() {
           element={
             <PrivateRoute>
               <DocEditor />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/resume-editor/:id"
-          element={
-            <PrivateRoute>
-              <ResumeFormEditor />
             </PrivateRoute>
           }
         />

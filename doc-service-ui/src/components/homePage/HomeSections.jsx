@@ -42,6 +42,7 @@ const TEMPLATES = [
     { src: 'https://i.ibb.co/v4dWrK1j/Vishnu-Singh.jpg', name: 'Modern Tech', tag: 'Resume', to: '/templates?type=CV_AND_RESUME' },
     { src: 'http://raw.githubusercontent.com/jakegut/resume/refs/heads/master/resume.png', name: 'Classic Professional', tag: 'Resume', to: '/templates?type=CV_AND_RESUME' },
     { src: 'https://i.ibb.co/7HgSdbL/William-Lucas.jpg', name: 'Engineering Pro', tag: 'Resume', to: '/templates?type=CV_AND_RESUME' },
+    { src: 'https://cdn.enhancv.com/images/1098/i/aHR0cHM6Ly9jZG4uZW5oYW5jdi5jb20vcHJlZGVmaW5lZC1leGFtcGxlcy9vU0ZjUElJdk1rVUhzT2xQQ0gwU3NLRUF0aVprd0N6Q2xPTFRFUFJmL2ltYWdlLnBuZw~~.png', name: 'Enhancv Style', tag: 'Resume', to: '/templates?type=CV_AND_RESUME' },
 ];
 
 const REVIEWS = [
@@ -271,34 +272,17 @@ export default function HomeSections() {
                     </Link>
                 </div>
 
-                <div className="mt-14 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mx-auto mt-14 grid max-w-8xl grid-cols-2 gap-6 sm:grid-cols-4">
                     {TEMPLATES.map((t, i) => (
                         <MotionDiv key={t.name} custom={i} variants={fadeUp} initial="hidden" whileInView="show" viewport={viewport}>
-                            <Link
-                                to={t.to}
-                                className="group relative block overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black/5 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:ring-teal-400/50"
-                            >
-                                <div className="relative overflow-hidden bg-white" style={{ aspectRatio: '3/4' }}>
-                                    <img
-                                        src={t.src}
-                                        alt={t.name}
-                                        className="h-full w-full object-cover object-top transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]"
-                                        onError={(e) => { e.currentTarget.src = 'https://placehold.co/600x800?text=Template'; }}
-                                    />
-                                    {/* Hover overlay + CTA */}
-                                    <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                                        <span className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg">
-                                            Use this template
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4-4 4M3 12h18" /></svg>
-                                        </span>
-                                    </div>
-                                </div>
-                                {/* Caption */}
-                                <div className="flex items-center justify-between gap-2 border-t border-black/5 px-4 py-3">
-                                    <span className="truncate text-sm font-semibold text-slate-800">{t.name}</span>
-                                    <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-500">{t.tag}</span>
-                                </div>
-                            </Link>
+                            <div className="overflow-hidden bg-white shadow-md ring-1 ring-black/5" style={{ aspectRatio: '3/4' }}>
+                                <img
+                                    src={t.src}
+                                    alt=""
+                                    className="h-full w-full object-cover object-top"
+                                    onError={(e) => { e.currentTarget.src = 'https://placehold.co/600x800?text=Template'; }}
+                                />
+                            </div>
                         </MotionDiv>
                     ))}
                 </div>

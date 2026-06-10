@@ -41,7 +41,7 @@ export default function AuthLayout({ badge, title, description, features = [], b
                                     <path d="M220 200 L300 380 L380 200" strokeWidth="10" />
                                 </g>
                             </svg>
-                            <span className="text-sm font-bold tracking-[0.25em] text-white">DOCSERVICE</span>
+                            <span className="text-sm font-bold tracking-[0.25em] text-white">CAREERHUB</span>
                         </button>
                     </div>
                 </header>
@@ -127,7 +127,7 @@ export default function AuthLayout({ badge, title, description, features = [], b
                                     <path d="M220 200 L300 380 L380 200" strokeWidth="10" />
                                 </g>
                             </svg>
-                            <span className="text-base font-bold tracking-widest text-white">DOCSERVICE</span>
+                            <span className="text-base font-bold tracking-widest text-white">CAREERHUB</span>
                         </button>
                         {/* Breadcrumb on mobile */}
                         {breadcrumb && (

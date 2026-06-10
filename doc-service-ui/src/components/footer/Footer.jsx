@@ -35,14 +35,14 @@ export default function Footer() {
                                 className="h-7 w-auto"
                             />
                             <span className="text-base font-bold tracking-widest text-white">
-                                DOCSERVICE
+                                CAREERHUB
                             </span>
                         </Link>
                     <p className="text-sm sm:text-slate-300 text-slate-900 max-w-xs">
                             Build ATS-friendly resumes and documents in minutes.
                         </p>
                         <p className="hidden text-sm text-slate-400 md:block">
-                            © {new Date().getFullYear()} DocService. All rights reserved.
+                            © {new Date().getFullYear()} CAREERHUB. All rights reserved.
                         </p>
                     </div>
 

@@ -3,21 +3,43 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import authService from '../../services/auth.service';
 
+/* ── Icons ─────────────────────────────────────────────────────────── */
+const iconBase = 'h-5 w-5';
+const DocIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconBase}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-6 4h4m3 4H8a2 2 0 01-2-2V5a2 2 0 012-2h6l4 4v12a2 2 0 01-2 2z" />
+    </svg>
+);
+const GridIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconBase}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 5h6v6H4V5zm10 0h6v6h-6V5zM4 15h6v4H4v-4zm10 0h6v4h-6v-4z" />
+    </svg>
+);
+const FolderIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconBase}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+    </svg>
+);
+const MailIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconBase}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16v12H4V6zm0 1l8 6 8-6" />
+    </svg>
+);
 
 const navItems = [
     {
         label: 'Resume',
         children: [
-            { label: 'Resume Templates', to: '/templates?type=CV_AND_RESUME' },
-            { label: 'Browse All Templates', to: '/templates' },
-            { label: 'My Documents', to: '/my-templates' },
+            { label: 'Resume Templates', desc: 'ATS-friendly designs to start from', to: '/templates?type=CV_AND_RESUME', icon: <DocIcon /> },
+            { label: 'Browse All Templates', desc: 'Every document type in one place', to: '/templates', icon: <GridIcon /> },
+            { label: 'My Documents', desc: 'Resumes saved to your account', to: '/my-templates', icon: <FolderIcon /> },
         ],
     },
     {
         label: 'Cover Letter',
         children: [
-            { label: 'Cover Letter Templates', to: '/templates?type=FORMAL_LETTERS' },
-            { label: 'Browse All Templates', to: '/templates' },
+            { label: 'Cover Letter Templates', desc: 'Match your resume in minutes', to: '/templates?type=FORMAL_LETTERS', icon: <MailIcon /> },
+            { label: 'Browse All Templates', desc: 'Explore the full library', to: '/templates', icon: <GridIcon /> },
         ],
     },
     { label: 'Blog', to: '/blog' },
@@ -27,14 +49,14 @@ const navItems = [
 
 const profileItems = [
     { label: 'My Profile', to: '/profile' },
-    { label: 'My Templates', to: '/my-templates' },
+    { label: 'My Documents', to: '/my-templates' },
     { label: 'Settings', to: '/settings' },
 ];
 
 function ChevronDown({ open }) {
     return (
         <svg
-            className={`ml-1 h-3.5 w-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+            className={`h-3.5 w-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
             viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
         >
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -42,63 +64,60 @@ function ChevronDown({ open }) {
     );
 }
 
-function DropdownNavItem({ item, isOpen, onOpen, onClose }) {
+/**
+ * Hover/click dropdown. The hero wrapper has `overflow-hidden`, so the panel is positioned
+ * `fixed` (to escape the clip) and repositioned on scroll/resize while open. The `pt-3` wrapper
+ * keeps the hover area continuous between the button and the card (no closing gap).
+ */
+function DropdownNavItem({ item, isOpen, onOpen, onCloseSelf, onClose }) {
     const ref = useRef(null);
     const btnRef = useRef(null);
     const closeTimer = useRef(null);
-    const [pointerEnabled, setPointerEnabled] = useState(isOpen);
-    const [dropPos, setDropPos] = useState({ top: 0, left: 0 });
+    const [pos, setPos] = useState({ top: 0, left: 0 });
 
+    const reposition = useCallback(() => {
+        if (!btnRef.current) return;
+        const r = btnRef.current.getBoundingClientRect();
+        setPos({ top: r.bottom, left: r.left + r.width / 2 });
+    }, []);
+
+    // Keep the panel glued to the button while it's open (scroll/resize).
     useEffect(() => {
-        const handler = (e) => {
-            if (ref.current && !ref.current.contains(e.target)) {
-                clearTimeout(closeTimer.current);
-                onClose();
-            }
+        if (!isOpen) return;
+        window.addEventListener('scroll', reposition, true);
+        window.addEventListener('resize', reposition);
+        return () => {
+            window.removeEventListener('scroll', reposition, true);
+            window.removeEventListener('resize', reposition);
         };
+    }, [isOpen, reposition]);
+
+    // Outside click fully closes the menu.
+    useEffect(() => {
+        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
     }, [onClose]);
 
-    // Keep the dropdown clickable during the closing animation.
-    useEffect(() => {
-        if (isOpen) {
-            setPointerEnabled(true);
-            // Recalculate position when opening
-            if (btnRef.current) {
-                const rect = btnRef.current.getBoundingClientRect();
-                setDropPos({ top: rect.bottom + 8, left: rect.left + rect.width / 2 });
-            }
-            return;
-        }
+    useEffect(() => () => clearTimeout(closeTimer.current), []);
 
-        const t = setTimeout(() => setPointerEnabled(false), 180);
-        return () => clearTimeout(t);
-    }, [isOpen]);
-
-    const handleMouseEnter = () => {
+    const enter = () => {
         clearTimeout(closeTimer.current);
+        reposition();          // position synchronously, before the panel paints
         onOpen();
     };
-
-    const handleMouseLeave = () => {
-        closeTimer.current = setTimeout(() => onClose(), 250);
+    // Only this item closes itself, and only after a grace period — so moving the
+    // cursor into the panel (or onto a sibling) never wipes the menu that just opened.
+    const leave = () => {
+        clearTimeout(closeTimer.current);
+        closeTimer.current = setTimeout(onCloseSelf, 220);
     };
 
-    const ROWS = 4;
-    const numCols = Math.ceil(item.children.length / ROWS);
-    const dropdownWidth = numCols * 160;
-
     return (
-        <div
-            ref={ref}
-            className="relative"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-        >
+        <div ref={ref} className="relative" onMouseEnter={enter} onMouseLeave={leave}>
             <button
                 ref={btnRef}
-                className="flex items-center text-sm font-medium text-inherit transition-colors duration-200 hover:opacity-80"
+                className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 ${isOpen ? 'bg-white/10 text-white' : 'text-white/85 hover:bg-white/10 hover:text-white'}`}
             >
                 {item.label}
                 <ChevronDown open={isOpen} />
@@ -106,42 +125,32 @@ function DropdownNavItem({ item, isOpen, onOpen, onClose }) {
 
             <div
                 style={{
-                    width: `${dropdownWidth}px`,
                     position: 'fixed',
-                    top: dropPos.top,
-                    left: dropPos.left,
-                    transform: `translateX(-50%) translateY(${isOpen ? '0px' : '-4px'})`,
+                    top: pos.top,
+                    left: pos.left,
                     zIndex: 99999,
+                    transform: `translateX(-50%) translateY(${isOpen ? '0px' : '-6px'})`,
                 }}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                className={`transition-all duration-200 ${isOpen
-                    ? 'opacity-100'
-                    : 'opacity-0'
-                    } ${pointerEnabled ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                onMouseEnter={enter}
+                onMouseLeave={leave}
+                className={`pt-3 transition-[opacity,transform] duration-200 ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
             >
-                <div className="mx-auto -mb-px flex h-2 w-4 justify-center overflow-hidden">
-                    <div className="h-2 w-2 rotate-45 border-l border-t border-black/50 dark:border-white/50 bg-white/95 dark:bg-black/90" />
-                </div>
-
-                <div className="overflow-hidden rounded-lg border border-black/50 dark:border-white/50 bg-white/95 dark:bg-black/90 shadow-lg">
-                    <div
-                        className="p-2 grid grid-flow-col gap-0.5"
-                        style={{ gridTemplateRows: `repeat(${Math.min(item.children.length, ROWS)}, auto)` }}
-                    >
+                <div className="w-80 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-900/10 ring-1 ring-black/5">
+                    <div className="p-2">
                         {item.children.map((child) => (
                             <NavLink
-                                key={child.to}
+                                key={child.to + child.label}
                                 to={child.to}
                                 onClick={onClose}
-                                className={({ isActive }) =>
-                                    `block rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ${isActive
-                                        ? 'bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300'
-                                        : 'text-inherit hover:bg-black/5 dark:hover:bg-white/10'
-                                    }`
-                                }
+                                className="group/item flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-slate-50"
                             >
-                                {child.label}
+                                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600 transition-colors group-hover/item:bg-teal-100">
+                                    {child.icon}
+                                </span>
+                                <span className="min-w-0">
+                                    <span className="block text-sm font-semibold text-slate-800">{child.label}</span>
+                                    {child.desc && <span className="block text-xs leading-snug text-slate-500">{child.desc}</span>}
+                                </span>
                             </NavLink>
                         ))}
                     </div>
@@ -153,11 +162,11 @@ function DropdownNavItem({ item, isOpen, onOpen, onClose }) {
 
 function NavCenter({ visibleNavItems }) {
     const [openItem, setOpenItem] = useState(null);
-
     const closeAll = useCallback(() => setOpenItem(null), []);
+    const closeIf = useCallback((label) => setOpenItem((cur) => (cur === label ? null : cur)), []);
 
     return (
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden items-center gap-1 md:flex">
             {visibleNavItems.map((item) =>
                 item.children ? (
                     <DropdownNavItem
@@ -165,6 +174,7 @@ function NavCenter({ visibleNavItems }) {
                         item={item}
                         isOpen={openItem === item.label}
                         onOpen={() => setOpenItem(item.label)}
+                        onCloseSelf={() => closeIf(item.label)}
                         onClose={closeAll}
                     />
                 ) : (
@@ -173,10 +183,7 @@ function NavCenter({ visibleNavItems }) {
                         to={item.to}
                         onClick={closeAll}
                         className={({ isActive }) =>
-                            `px-3 py-1.5 text-sm font-medium transition-colors duration-200 rounded-md ${isActive
-                                ? 'text-teal-600'
-                                : 'text-inherit hover:opacity-80'
-                            }`
+                            `rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 ${isActive ? 'bg-white/10 text-white' : 'text-white/85 hover:bg-white/10 hover:text-white'}`
                         }
                     >
                         {item.label}
@@ -191,100 +198,78 @@ function ProfileMenu({ onLogout }) {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
     const btnRef = useRef(null);
-    const [dropPos, setDropPos] = useState({ top: 0, right: 0 });
+    const [pos, setPos] = useState({ top: 0, right: 0 });
+
+    const reposition = useCallback(() => {
+        if (!btnRef.current) return;
+        const r = btnRef.current.getBoundingClientRect();
+        setPos({ top: r.bottom + 10, right: window.innerWidth - r.right });
+    }, []);
 
     useEffect(() => {
-        const handler = (e) => {
-            if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-        };
+        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
-    // Lock scroll while profile menu is open.
     useEffect(() => {
         if (!open) return;
-        const prev = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
-        return () => { document.body.style.overflow = prev; };
-    }, [open]);
-
-    const handleToggle = () => {
-        if (!open && btnRef.current) {
-            const rect = btnRef.current.getBoundingClientRect();
-            setDropPos({
-                top: rect.bottom + 8,
-                right: window.innerWidth - rect.right,
-            });
-        }
-        setOpen((v) => !v);
-    };
+        reposition();
+        window.addEventListener('scroll', reposition, true);
+        window.addEventListener('resize', reposition);
+        return () => {
+            window.removeEventListener('scroll', reposition, true);
+            window.removeEventListener('resize', reposition);
+        };
+    }, [open, reposition]);
 
     return (
         <div ref={ref} className="relative">
             <button
                 ref={btnRef}
-                onClick={handleToggle}
-                className="cursor-pointer group relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-black/80 dark:border-black/80 bg-transparent transition-colors duration-200 hover:border-black/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/50"
+                onClick={() => setOpen((v) => !v)}
+                className="group relative flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white backdrop-blur-sm transition hover:border-white/70 hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 aria-label="Profile menu"
             >
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="h-5 w-5 text-white/910 opacity-80 transition-opacity duration-200 group-hover:opacity-100"
-                >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 opacity-90 transition-opacity group-hover:opacity-100">
                     <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                 </svg>
-                <span className="absolute bottom-0 right-0 flex h-2.5 w-2.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-40" />
-                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-teal-500" />
+                <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-50" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full border border-white bg-teal-500" />
                 </span>
             </button>
 
             <div
-                style={{
-                    position: 'fixed',
-                    top: dropPos.top,
-                    right: dropPos.right,
-                    width: '12rem',
-                    zIndex: 99999,
-                    transform: `translateY(${open ? '0px' : '-4px'})`,
-                }}
-                className={`transition-all duration-200 ${open
-                    ? 'pointer-events-auto opacity-100'
-                    : 'pointer-events-none opacity-0'
-                    }`}
+                style={{ position: 'fixed', top: pos.top, right: pos.right, width: '13rem', zIndex: 99999, transform: `translateY(${open ? '0px' : '-6px'})` }}
+                className={`transition-[opacity,transform] duration-200 ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
             >
-                <div className="flex justify-end pr-3 -mb-px">
-                    <div className="h-2 w-2 rotate-45 border-l border-t border-black/50 dark:border-white/50 bg-white/95 dark:bg-black/90" />
-                </div>
-
-                <div className="overflow-hidden rounded-lg border border-black/50 dark:border-white/50 bg-white/95 dark:bg-black/90 shadow-lg">
-                    <div className="border-b border-black/50 dark:border-white/50 px-4 py-2.5">
-                        <p className="text-xs font-medium uppercase tracking-widest opacity-60">Account</p>
+                <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-900/10 ring-1 ring-black/5">
+                    <div className="border-b border-slate-100 px-4 py-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Account</p>
                     </div>
-                    <div className="p-2 space-y-0.5">
+                    <div className="space-y-0.5 p-2">
                         {profileItems.map((item) => (
                             <NavLink
                                 key={item.to}
                                 to={item.to}
                                 onClick={() => setOpen(false)}
                                 className={({ isActive }) =>
-                                    `block rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ${isActive
-                                        ? 'bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300'
-                                        : 'text-inherit hover:bg-black/5 dark:hover:bg-white/10'
-                                    }`
+                                    `block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-teal-50 text-teal-700' : 'text-slate-700 hover:bg-slate-50'}`
                                 }
                             >
                                 {item.label}
                             </NavLink>
                         ))}
                     </div>
-                    <div className="border-t border-black/50 dark:border-white/50 p-2">
+                    <div className="border-t border-slate-100 p-2">
                         <button
                             onClick={() => { setOpen(false); onLogout(); }}
-                            className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-red-500 transition-colors duration-150 hover:bg-red-50"
+                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
                         >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+                            </svg>
                             Sign out
                         </button>
                     </div>
@@ -296,45 +281,36 @@ function ProfileMenu({ onLogout }) {
 
 function MobileMenu({ visibleNavItems, isAuthenticated, profileItems, onLogout, menuRef, menuTop }) {
     const [openSection, setOpenSection] = useState(null);
-
     const toggle = (label) => setOpenSection((prev) => (prev === label ? null : label));
 
     return (
         <div
             ref={menuRef}
             style={{ top: menuTop }}
-            className="fixed left-0 right-0 z-9999 border-b border-black/50 dark:border-white/50 bg-white/95 dark:bg-black/90 shadow-lg md:hidden"
+            className="fixed left-0 right-0 z-[9999] border-b border-slate-200 bg-white shadow-xl md:hidden"
         >
-            <div className="max-h-[70vh] overflow-y-auto px-3 py-3 space-y-0.5">
+            <div className="max-h-[72vh] space-y-0.5 overflow-y-auto px-3 py-3">
                 {visibleNavItems.map((item) =>
                     item.children ? (
                         <div key={item.label}>
                             <button
                                 onClick={() => toggle(item.label)}
-                                className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-inherit hover:bg-black/5"
+                                className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
                             >
                                 {item.label}
-                                <svg
-                                    className={`h-4 w-4 shrink-0 opacity-60 transition-transform duration-200 ${openSection === item.label ? 'rotate-180' : ''}`}
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                                </svg>
+                                <ChevronDown open={openSection === item.label} />
                             </button>
-
                             {openSection === item.label && (
-                                <div className="ml-3 mt-0.5 border-l-2 border-black/50 dark:border-white/50 pl-3 space-y-0.5 pb-1">
+                                <div className="mb-1 ml-2 space-y-0.5 border-l-2 border-slate-100 pl-3">
                                     {item.children.map((child) => (
                                         <NavLink
-                                            key={child.to}
+                                            key={child.to + child.label}
                                             to={child.to}
                                             className={({ isActive }) =>
-                                                `block rounded-md px-3 py-2 text-sm font-medium ${isActive
-                                                    ? 'bg-teal-50 text-teal-700'
-                                                    : 'text-inherit hover:bg-black/5'
-                                                }`
+                                                `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-50'}`
                                             }
                                         >
+                                            <span className="text-teal-500">{child.icon}</span>
                                             {child.label}
                                         </NavLink>
                                     ))}
@@ -346,10 +322,7 @@ function MobileMenu({ visibleNavItems, isAuthenticated, profileItems, onLogout, 
                             key={item.label}
                             to={item.to}
                             className={({ isActive }) =>
-                                `block rounded-md px-3 py-2.5 text-sm font-medium ${isActive
-                                    ? 'bg-teal-50 text-teal-700'
-                                    : 'text-inherit hover:bg-black/5'
-                                }`
+                                `block rounded-lg px-3 py-2.5 text-sm font-semibold ${isActive ? 'bg-teal-50 text-teal-700' : 'text-slate-800 hover:bg-slate-50'}`
                             }
                         >
                             {item.label}
@@ -358,37 +331,24 @@ function MobileMenu({ visibleNavItems, isAuthenticated, profileItems, onLogout, 
                 )}
             </div>
 
-            <div className="border-t border-black/50 dark:border-white/50 px-3 py-3">
+            <div className="border-t border-slate-200 px-3 py-3">
                 {isAuthenticated ? (
                     <div className="space-y-0.5">
                         {profileItems.map((item) => (
-                            <NavLink
-                                key={item.to}
-                                to={item.to}
-                                className="block rounded-md px-3 py-2 text-sm font-medium text-inherit hover:bg-black/5"
-                            >
+                            <NavLink key={item.to} to={item.to} className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
                                 {item.label}
                             </NavLink>
                         ))}
-                        <button
-                            onClick={onLogout}
-                            className="mt-1 block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-red-500 hover:bg-red-50"
-                        >
+                        <button onClick={onLogout} className="mt-1 block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-red-500 hover:bg-red-50">
                             Sign out
                         </button>
                     </div>
                 ) : (
                     <div className="flex flex-col gap-2">
-                        <NavLink
-                            to="/login"
-                            className="block w-full rounded-md border border-slate-200 px-3 py-2.5 text-center text-sm font-medium text-inherit hover:bg-black/5"
-                        >
+                        <NavLink to="/login" className="block w-full rounded-full border border-slate-300 px-3 py-2.5 text-center text-sm font-semibold text-slate-800 hover:bg-slate-50">
                             Sign in
                         </NavLink>
-                        <NavLink
-                            to="/signup"
-                            className="block w-full rounded-md bg-slate-900 px-3 py-2.5 text-center text-sm font-medium text-white hover:bg-slate-800"
-                        >
+                        <NavLink to="/signup" className="block w-full rounded-full bg-teal-500 px-3 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-teal-400">
                             Get Started
                         </NavLink>
                     </div>
@@ -415,31 +375,24 @@ export default function Navbar() {
 
     useEffect(() => {
         if (!isMobileMenuOpen) return;
-
         const measure = () => {
             const bottom = headerRef.current?.getBoundingClientRect().bottom;
             if (bottom != null) setMobileMenuTop(bottom);
         };
-
         measure();
         window.addEventListener('resize', measure);
         return () => window.removeEventListener('resize', measure);
     }, [isMobileMenuOpen]);
 
-    // Lock scroll + close on outside click for mobile menu.
     useEffect(() => {
         if (!isMobileMenuOpen) return;
-
         const prevOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
-
         const handler = (e) => {
-            const target = e.target;
-            if (hamburgerRef.current?.contains(target)) return;
-            if (mobileMenuRef.current?.contains(target)) return;
+            if (hamburgerRef.current?.contains(e.target)) return;
+            if (mobileMenuRef.current?.contains(e.target)) return;
             setIsMobileMenuOpen(false);
         };
-
         document.addEventListener('mousedown', handler);
         return () => {
             document.body.style.overflow = prevOverflow;
@@ -462,33 +415,22 @@ export default function Navbar() {
     const visibleNavItems = navItems.filter((item) => !item.authRequired || isAuthenticated);
 
     return (
-        <header ref={headerRef} className="relative z-9999 border-b border-black/50 dark:border-white/50 bg-inherit text-inherit">
-            <nav className="mx-auto flex h-14 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
-
+        <header
+            ref={headerRef}
+            className="relative z-50 border-b border-white/40 bg-gradient-to-b from-slate-950/45 via-slate-950/15 to-transparent text-white"
+        >
+            <nav className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
                 {/* Logo */}
                 <div className="flex flex-1 items-center">
-                    <button
-                        onClick={() => navigate('/')}
-                        className="group flex items-center gap-3 outline-none"
-                    >
-                        {/* Logo mark (V icon) */}
-                        <svg
-                            width="38"
-                            height="38"
-                            viewBox="0 0 600 600"
-                            xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true"
-                            className="shrink-0"
-                        >
+                    <button onClick={() => navigate('/')} className="group flex items-center gap-2.5 outline-none">
+                        <svg width="34" height="34" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="shrink-0">
                             <g stroke="white" strokeWidth="22" fill="none" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M150 150 L300 450 L450 150" />
                                 <path d="M220 200 L300 380 L380 200" strokeWidth="10" />
                             </g>
                         </svg>
-
-                        {/* Brand name */}
-                        <span className="text-base text-white font-bold tracking-widest">
-                            DOCSERVICE
+                        <span className="text-base font-bold tracking-[0.2em] text-white transition-opacity group-hover:opacity-90">
+                            CAREERHUB
                         </span>
                     </button>
                 </div>
@@ -497,22 +439,22 @@ export default function Navbar() {
                 <NavCenter visibleNavItems={visibleNavItems} />
 
                 {/* Right: Auth / Profile */}
-                <div className="flex flex-1 items-center justify-end gap-3">
+                <div className="flex flex-1 items-center justify-end gap-2">
                     {isAuthenticated ? (
                         <div className="hidden md:block">
                             <ProfileMenu onLogout={handleLogout} />
                         </div>
                     ) : (
-                        <div className="hidden md:flex items-center gap-3">
+                        <div className="hidden items-center gap-1.5 md:flex">
                             <NavLink
                                 to="/login"
-                                className="text-sm font-medium text-inherit transition hover:opacity-80"
+                                className="rounded-lg px-3.5 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
                             >
                                 Sign in
                             </NavLink>
                             <NavLink
                                 to="/signup"
-                                className="inline-flex items-center gap-1.5 rounded-full border border-black px-4 py-2 text-sm font-semibold text-black transition-all hover:border-teal-500"
+                                className="inline-flex items-center gap-1.5 rounded-full bg-teal-500 px-5 py-2 text-sm font-semibold text-white shadow-sm shadow-teal-900/30 transition hover:bg-teal-400 hover:shadow-md"
                             >
                                 Get Started
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5">
@@ -526,15 +468,15 @@ export default function Navbar() {
                     <button
                         ref={hamburgerRef}
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="inline-flex items-center justify-center rounded-md p-2 text-inherit opacity-80 transition hover:bg-black/5 hover:opacity-100 focus:outline-none md:hidden"
+                        className="inline-flex items-center justify-center rounded-lg p-2 text-white/90 transition hover:bg-white/10 hover:text-white focus:outline-none md:hidden"
                     >
                         <span className="sr-only">Open menu</span>
                         {isMobileMenuOpen ? (
-                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         ) : (
-                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                             </svg>
                         )}
