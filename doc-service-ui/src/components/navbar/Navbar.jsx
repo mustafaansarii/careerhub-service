@@ -5,10 +5,24 @@ import authService from '../../services/auth.service';
 
 
 const navItems = [
-    { label: 'Templates', to: '/templates' },
-    { label: 'My Templates', to: '/my-templates' },
+    {
+        label: 'Resume',
+        children: [
+            { label: 'Resume Templates', to: '/templates?type=CV_AND_RESUME' },
+            { label: 'Browse All Templates', to: '/templates' },
+            { label: 'My Documents', to: '/my-templates' },
+        ],
+    },
+    {
+        label: 'Cover Letter',
+        children: [
+            { label: 'Cover Letter Templates', to: '/templates?type=FORMAL_LETTERS' },
+            { label: 'Browse All Templates', to: '/templates' },
+        ],
+    },
+    { label: 'Blog', to: '/blog' },
+    { label: 'For Organizations', to: '/contact-us' },
     { label: 'Pricing', to: '/pricing' },
-    { label: 'Contact', to: '/contact-us' },
 ];
 
 const profileItems = [
@@ -369,13 +383,13 @@ function MobileMenu({ visibleNavItems, isAuthenticated, profileItems, onLogout, 
                             to="/login"
                             className="block w-full rounded-md border border-slate-200 px-3 py-2.5 text-center text-sm font-medium text-inherit hover:bg-black/5"
                         >
-                            Log in
+                            Sign in
                         </NavLink>
                         <NavLink
                             to="/signup"
                             className="block w-full rounded-md bg-slate-900 px-3 py-2.5 text-center text-sm font-medium text-white hover:bg-slate-800"
                         >
-                            Sign up free
+                            Get Started
                         </NavLink>
                     </div>
                 )}
@@ -494,7 +508,7 @@ export default function Navbar() {
                                 to="/login"
                                 className="text-sm font-medium text-inherit transition hover:opacity-80"
                             >
-                                Log in
+                                Sign in
                             </NavLink>
                             <NavLink
                                 to="/signup"
