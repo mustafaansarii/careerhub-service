@@ -26,23 +26,75 @@ const MailIcon = () => (
     </svg>
 );
 
+const ICONS = { builder: <DocIcon />, grid: <GridIcon />, folder: <FolderIcon />, mail: <MailIcon /> };
+
 const navItems = [
     {
         label: 'Resume',
-        children: [
-            { label: 'Resume Templates', desc: 'ATS-friendly designs to start from', to: '/templates?type=CV_AND_RESUME', icon: <DocIcon /> },
-            { label: 'Browse All Templates', desc: 'Every document type in one place', to: '/templates', icon: <GridIcon /> },
-            { label: 'My Documents', desc: 'Resumes saved to your account', to: '/my-templates', icon: <FolderIcon /> },
-        ],
+        mega: {
+            columns: [
+                {
+                    kind: 'cards',
+                    items: [
+                        { icon: 'builder', title: 'Resume Builder', desc: 'Create a resume with live preview', to: '/resume-builder' },
+                        { icon: 'grid', title: 'Resume Templates', desc: 'Recruiter-approved designs', to: '/templates?type=CV_AND_RESUME' },
+                        { icon: 'folder', title: 'My Documents', desc: 'Resumes saved to your account', to: '/my-templates' },
+                    ],
+                },
+                {
+                    kind: 'links', heading: 'How it works',
+                    items: [
+                        { title: 'Pick a template', desc: 'Start from a polished design', to: '/templates?type=CV_AND_RESUME' },
+                        { title: 'Fill your details', desc: 'Auto-filled from your profile', to: '/resume-builder' },
+                        { title: 'Download as PDF', desc: 'Export an ATS-ready file', to: '/resume-builder' },
+                    ],
+                },
+                {
+                    kind: 'list', heading: 'Popular examples',
+                    items: [
+                        { label: 'Software Engineer', to: '/templates?type=CV_AND_RESUME&keyword=Software' },
+                        { label: 'Data Scientist', to: '/templates?type=CV_AND_RESUME&keyword=Data' },
+                        { label: 'Marketing', to: '/templates?type=CV_AND_RESUME&keyword=Marketing' },
+                        { label: 'Finance & Accounting', to: '/templates?type=CV_AND_RESUME&keyword=Finance' },
+                        { label: 'Graduate / Entry level', to: '/templates?type=CV_AND_RESUME&keyword=Entry' },
+                        { label: 'Browse all', to: '/templates?type=CV_AND_RESUME' },
+                    ],
+                },
+            ],
+            promo: { title: 'Free, ATS-friendly resume builder', desc: 'Build and download in minutes — no account needed.', cta: 'Build your resume', to: '/resume-builder' },
+        },
     },
     {
         label: 'Cover Letter',
-        children: [
-            { label: 'Cover Letter Templates', desc: 'Match your resume in minutes', to: '/templates?type=FORMAL_LETTERS', icon: <MailIcon /> },
-            { label: 'Browse All Templates', desc: 'Explore the full library', to: '/templates', icon: <GridIcon /> },
-        ],
+        mega: {
+            columns: [
+                {
+                    kind: 'cards',
+                    items: [
+                        { icon: 'mail', title: 'Cover Letter Templates', desc: 'Match your resume design', to: '/templates?type=FORMAL_LETTERS' },
+                        { icon: 'grid', title: 'Browse all templates', desc: 'Every document type', to: '/templates' },
+                    ],
+                },
+                {
+                    kind: 'links', heading: 'Guides',
+                    items: [
+                        { title: 'Writing a cover letter', desc: 'A complete how-to', to: '/templates?type=FORMAL_LETTERS' },
+                        { title: 'Formats & structure', desc: 'Pick the right format', to: '/templates?type=FORMAL_LETTERS' },
+                    ],
+                },
+                {
+                    kind: 'list', heading: 'Examples',
+                    items: [
+                        { label: 'Software Engineer', to: '/templates?type=FORMAL_LETTERS' },
+                        { label: 'Data Analyst', to: '/templates?type=FORMAL_LETTERS' },
+                        { label: 'Designer', to: '/templates?type=FORMAL_LETTERS' },
+                        { label: 'Manager', to: '/templates?type=FORMAL_LETTERS' },
+                    ],
+                },
+            ],
+            promo: { title: 'ATS-friendly cover letters', desc: 'Create a matching cover letter fast.', cta: 'Browse templates', to: '/templates?type=FORMAL_LETTERS' },
+        },
     },
-    { label: 'Blog', to: '/blog' },
     { label: 'For Organizations', to: '/contact-us' },
     { label: 'Pricing', to: '/pricing' },
 ];
@@ -52,6 +104,14 @@ const profileItems = [
     { label: 'My Documents', to: '/my-templates' },
     { label: 'Settings', to: '/settings' },
 ];
+
+/** Flattens a mega menu into a simple link list for the mobile menu. */
+function megaLinks(item) {
+    const out = [];
+    (item.mega?.columns || []).forEach((col) => (col.items || []).forEach((it) => out.push({ label: it.title || it.label, to: it.to })));
+    if (item.mega?.promo) out.push({ label: item.mega.promo.cta, to: item.mega.promo.to });
+    return out;
+}
 
 function ChevronDown({ open }) {
     return (
@@ -78,7 +138,7 @@ function DropdownNavItem({ item, isOpen, onOpen, onCloseSelf, onClose }) {
     const reposition = useCallback(() => {
         if (!btnRef.current) return;
         const r = btnRef.current.getBoundingClientRect();
-        setPos({ top: r.bottom, left: r.left + r.width / 2 });
+        setPos({ top: r.bottom });
     }, []);
 
     // Keep the panel glued to the button while it's open (scroll/resize).
@@ -117,6 +177,8 @@ function DropdownNavItem({ item, isOpen, onOpen, onCloseSelf, onClose }) {
         <div ref={ref} className="relative" onMouseEnter={enter} onMouseLeave={leave}>
             <button
                 ref={btnRef}
+                type="button"
+                onClick={() => (isOpen ? onCloseSelf() : enter())}
                 className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 ${isOpen ? 'bg-white/10 text-white' : 'text-white/85 hover:bg-white/10 hover:text-white'}`}
             >
                 {item.label}
@@ -124,37 +186,88 @@ function DropdownNavItem({ item, isOpen, onOpen, onCloseSelf, onClose }) {
             </button>
 
             <div
-                style={{
-                    position: 'fixed',
-                    top: pos.top,
-                    left: pos.left,
-                    zIndex: 99999,
-                    transform: `translateX(-50%) translateY(${isOpen ? '0px' : '-6px'})`,
-                }}
+                style={{ position: 'fixed', top: pos.top, left: 0, right: 0, zIndex: 99999, transform: `translateY(${isOpen ? '0px' : '-6px'})` }}
                 onMouseEnter={enter}
                 onMouseLeave={leave}
-                className={`pt-3 transition-[opacity,transform] duration-200 ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+                className={`px-4 pt-3 transition-[opacity,transform] duration-200 sm:px-6 lg:px-8 ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
             >
-                <div className="w-80 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-900/10 ring-1 ring-black/5">
-                    <div className="p-2">
-                        {item.children.map((child) => (
-                            <NavLink
-                                key={child.to + child.label}
-                                to={child.to}
-                                onClick={onClose}
-                                className="group/item flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-slate-50"
-                            >
-                                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600 transition-colors group-hover/item:bg-teal-100">
-                                    {child.icon}
-                                </span>
-                                <span className="min-w-0">
-                                    <span className="block text-sm font-semibold text-slate-800">{child.label}</span>
-                                    {child.desc && <span className="block text-xs leading-snug text-slate-500">{child.desc}</span>}
-                                </span>
-                            </NavLink>
-                        ))}
-                    </div>
+                <div className="mx-auto max-w-7xl">
+                    <MegaPanel mega={item.mega} onClose={onClose} />
                 </div>
+            </div>
+        </div>
+    );
+}
+
+function MegaColumn({ col, onClose }) {
+    if (col.kind === 'cards') {
+        return (
+            <div className="space-y-1">
+                {col.items.map((it) => (
+                    <NavLink key={it.to + it.title} to={it.to} onClick={onClose} className="group/item flex items-start gap-3 rounded-xl p-3 transition hover:bg-slate-50">
+                        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600 transition-colors group-hover/item:bg-teal-100">{ICONS[it.icon]}</span>
+                        <span className="min-w-0">
+                            <span className="block text-sm font-semibold text-slate-800">{it.title}</span>
+                            <span className="block text-xs leading-snug text-slate-500">{it.desc}</span>
+                        </span>
+                    </NavLink>
+                ))}
+            </div>
+        );
+    }
+    if (col.kind === 'links') {
+        return (
+            <div>
+                <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">{col.heading}</p>
+                <div className="space-y-0.5">
+                    {col.items.map((it) => (
+                        <NavLink key={it.to + it.title} to={it.to} onClick={onClose} className="block rounded-xl px-3 py-2 transition hover:bg-slate-50">
+                            <span className="block text-sm font-semibold text-slate-800">{it.title}</span>
+                            {it.desc && <span className="block text-xs leading-snug text-slate-500">{it.desc}</span>}
+                        </NavLink>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+    return (
+        <div>
+            <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">{col.heading}</p>
+            <ul className="space-y-0.5">
+                {col.items.map((it) => (
+                    <li key={it.to + it.label}>
+                        <NavLink to={it.to} onClick={onClose} className="block rounded-lg px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50 hover:text-teal-700">{it.label}</NavLink>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
+function MegaPromo({ promo, onClose }) {
+    return (
+        <div className="relative flex w-full shrink-0 flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-50 p-5 lg:w-72">
+            <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-teal-200/50 blur-2xl" />
+            <div className="relative">
+                <h4 className="text-base font-bold text-slate-900">{promo.title}</h4>
+                <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{promo.desc}</p>
+            </div>
+            <NavLink to={promo.to} onClick={onClose} className="relative mt-5 inline-flex items-center justify-center gap-1.5 rounded-full bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-500">
+                {promo.cta}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4-4 4M3 12h18" /></svg>
+            </NavLink>
+        </div>
+    );
+}
+
+function MegaPanel({ mega, onClose }) {
+    return (
+        <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl shadow-slate-900/10 ring-1 ring-black/5">
+            <div className="flex flex-col gap-6 p-6 lg:flex-row">
+                <div className="grid flex-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {mega.columns.map((col, i) => <MegaColumn key={i} col={col} onClose={onClose} />)}
+                </div>
+                {mega.promo && <MegaPromo promo={mega.promo} onClose={onClose} />}
             </div>
         </div>
     );
@@ -168,7 +281,7 @@ function NavCenter({ visibleNavItems }) {
     return (
         <div className="hidden items-center gap-1 md:flex">
             {visibleNavItems.map((item) =>
-                item.children ? (
+                item.mega ? (
                     <DropdownNavItem
                         key={item.label}
                         item={item}
@@ -291,7 +404,7 @@ function MobileMenu({ visibleNavItems, isAuthenticated, profileItems, onLogout, 
         >
             <div className="max-h-[72vh] space-y-0.5 overflow-y-auto px-3 py-3">
                 {visibleNavItems.map((item) =>
-                    item.children ? (
+                    item.mega ? (
                         <div key={item.label}>
                             <button
                                 onClick={() => toggle(item.label)}
@@ -302,15 +415,14 @@ function MobileMenu({ visibleNavItems, isAuthenticated, profileItems, onLogout, 
                             </button>
                             {openSection === item.label && (
                                 <div className="mb-1 ml-2 space-y-0.5 border-l-2 border-slate-100 pl-3">
-                                    {item.children.map((child) => (
+                                    {megaLinks(item).map((child) => (
                                         <NavLink
                                             key={child.to + child.label}
                                             to={child.to}
                                             className={({ isActive }) =>
-                                                `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-50'}`
+                                                `block rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-50'}`
                                             }
                                         >
-                                            <span className="text-teal-500">{child.icon}</span>
                                             {child.label}
                                         </NavLink>
                                     ))}

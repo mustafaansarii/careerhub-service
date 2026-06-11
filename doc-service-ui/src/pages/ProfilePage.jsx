@@ -58,6 +58,7 @@ export default function ProfilePage() {
                 />
             </div>
 
+            <div className="min-h-screen bg-slate-50">
             <main className="mx-auto -mt-12 max-w-5xl px-4 pb-24 sm:px-6 lg:px-8">
                 {loading ? (
                     <div className="space-y-6">
@@ -138,8 +139,6 @@ export default function ProfilePage() {
                                 ))}
                             </div>
                         </section>
-
-                        <DeleteAccountSection />
                     </div>
                 ) : (
                     <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-500 shadow-sm">
@@ -147,6 +146,7 @@ export default function ProfilePage() {
                     </div>
                 )}
             </main>
+            </div>
         </>
     );
 }
@@ -237,45 +237,3 @@ function DetailsSummary({ d }) {
     );
 }
 
-function DeleteAccountSection() {
-    const [confirming, setConfirming] = useState(false);
-    const [deleting, setDeleting] = useState(false);
-
-    const handleDelete = async () => {
-        setDeleting(true);
-        try {
-            await userService.deleteAccount();
-            localStorage.removeItem('isAuthenticated');
-            toast.success('Account deleted successfully.');
-            window.location.href = '/login';
-        } catch (err) {
-            toast.error(err?.response?.data?.message || err?.message || 'Failed to delete account. Please try again.');
-            setDeleting(false);
-            setConfirming(false);
-        }
-    };
-
-    return (
-        <section className="rounded-3xl border border-red-200 bg-red-50/40 p-6 sm:p-8">
-            <h2 className="text-sm font-bold uppercase tracking-wide text-red-600">Danger zone</h2>
-            <p className="mt-1 mb-5 text-sm text-slate-500">Permanently delete your account and all associated documents. This action cannot be undone.</p>
-            {!confirming ? (
-                <button onClick={() => setConfirming(true)} className="rounded-xl border border-red-300 bg-white px-5 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-600 hover:text-white">
-                    Delete my account
-                </button>
-            ) : (
-                <div className="rounded-2xl border border-red-200 bg-white p-5">
-                    <p className="mb-4 text-sm font-semibold text-red-700">Are you sure? This will permanently delete your account and documents.</p>
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                        <button onClick={handleDelete} disabled={deleting} className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60">
-                            {deleting ? 'Deleting…' : 'Yes, delete my account'}
-                        </button>
-                        <button onClick={() => setConfirming(false)} disabled={deleting} className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            )}
-        </section>
-    );
-}

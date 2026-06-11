@@ -2,3 +2,6 @@
 **/node_modules/
 **/.env
 **/application.yml
+latex-templates/1.sample.json
+latex-templates/1.tex
+latex-templates/1.template.tex
