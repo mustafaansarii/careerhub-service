@@ -1,35 +1,55 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import {
-    PAGE_W, PAGE, GAP, STRIDE, MARGIN, nextId,
-    SECTION_CATALOG, META, NEEDS_ITEMS,
+    PAGE_W, PAGE, GAP, STRIDE, MARGIN,
+    SECTION_CATALOG, META, blankItem, profileToResume, resumeToProfile,
     AddButton, RemoveButton,
 } from './shared';
+import userService from '../services/user.service';
 
 /*
- * The shared form-builder engine. All logic (state, pagination, drag-reorder, add/remove sections,
- * selection toolbar, print) lives here. The visual design is supplied via the `design` prop, which
- * provides slots: { code, name, sheetClass, renderHeader, renderTitle, renderItem, renderText }.
+ * Form-builder engine. Holds the structured `resume` model (prefilled from the user's saved
+ * profile), all behaviour (pagination, drag-reorder, add/remove, selection toolbar, print), and
+ * on Download serializes the model back and PATCHes it (when signed in). Designs supply only the
+ * visual slots: { code, name, sheetClass, renderHeader, renderTitle, renderItem, renderText }.
  */
-const ITEM_MARGIN = { exp: 'mb-4', edu: 'mb-3', courses: 'mb-1.5', simple: 'mb-1' };
+const ITEM_MARGIN = { exp: 'mb-4', edu: 'mb-3', courses: 'mb-1.5', pair: 'mb-1', simple: 'mb-1' };
 
-export default function ResumeWorkspace({ design }) {
-    const [sections, setSections] = useState(['summary', 'experience', 'skills', 'courses', 'education']);
-    const [itemsByType, setItemsByType] = useState(() => ({
-        experience: [nextId(), nextId(), nextId()],
-        education: [nextId()],
-        courses: [nextId(), nextId()],
-        skills: [nextId()],
-    }));
+export default function ResumeWorkspace({ design, initialProfile = null, authed = false }) {
+    const [resume, setResume] = useState(() => profileToResume(initialProfile));
+    const [order, setOrder] = useState(() => resume._order || ['summary', 'experience', 'skills', 'courses', 'education']);
     const [pageCount, setPageCount] = useState(1);
     const [dragType, setDragType] = useState(null);
     const [overType, setOverType] = useState(null);
     const [toolbar, setToolbar] = useState(null);
     const [adding, setAdding] = useState(false);
+    const [saving, setSaving] = useState(false);
     const sheetRef = useRef(null);
     const scheduleRef = useRef(() => {});
 
-    /* measure-and-push pagination (keep each [data-block] whole) */
+    /* ── model setters ── */
+    const setField = (key, value) => setResume((r) => ({ ...r, [key]: value }));
+    const updateItem = (type, id, changes) => setResume((r) => ({ ...r, [type]: r[type].map((it) => (it.id === id ? { ...it, ...changes } : it)) }));
+    const addItem = (type) => setResume((r) => ({ ...r, [type]: [...(r[type] || []), blankItem(META[type].kind)] }));
+    const removeItem = (type, id) => setResume((r) => { const arr = (r[type] || []).filter((it) => it.id !== id); return { ...r, [type]: arr.length ? arr : [blankItem(META[type].kind)] }; });
+    const updateBullet = (type, id, bid, text) => setResume((r) => ({ ...r, [type]: r[type].map((it) => (it.id === id ? { ...it, bullets: it.bullets.map((b) => (b.id === bid ? { ...b, text } : b)) } : it)) }));
+    const addBullet = (type, id) => setResume((r) => ({ ...r, [type]: r[type].map((it) => (it.id === id ? { ...it, bullets: [...(it.bullets || []), blankItem('simple')] } : it)) }));
+    const removeBullet = (type, id, bid) => setResume((r) => ({ ...r, [type]: r[type].map((it) => (it.id === id ? { ...it, bullets: it.bullets.filter((b) => b.id !== bid) } : it)) }));
+
+    /* ── section operations ── */
+    const moveSection = (from, to) => {
+        if (!from || from === to) return;
+        setOrder((prev) => { const arr = prev.filter((t) => t !== from); const idx = to ? arr.indexOf(to) : arr.length; arr.splice(idx < 0 ? arr.length : idx, 0, from); return arr; });
+    };
+    const removeSection = (type) => setOrder((prev) => prev.filter((t) => t !== type));
+    const addSection = (type) => {
+        setOrder((prev) => (prev.includes(type) ? prev : [...prev, type]));
+        if (META[type].kind !== 'text') setResume((r) => (r[type] && r[type].length ? r : { ...r, [type]: [blankItem(META[type].kind)] }));
+        setAdding(false);
+    };
+
+    /* ── pagination ── */
     useEffect(() => {
         const sheet = sheetRef.current;
         if (!sheet) return;
@@ -41,28 +61,15 @@ export default function ResumeWorkspace({ design }) {
             const sheetTop = sheet.getBoundingClientRect().top;
             const data = blocks.map((b) => { const r = b.getBoundingClientRect(); return { el: b, top: r.top - sheetTop, h: r.height }; });
             const usable = PAGE - 2 * MARGIN;
-            let page = 0;
-            let push = 0;
+            let page = 0, push = 0;
             for (const d of data) {
                 const curTop = d.top + push;
                 const pageBottom = page * STRIDE + (PAGE - MARGIN);
-                if (d.h <= usable && curTop + d.h > pageBottom + 1) {
-                    page += 1;
-                    const delta = page * STRIDE + MARGIN - curTop;
-                    d.el.style.marginTop = `${delta}px`;
-                    push += delta;
-                }
+                if (d.h <= usable && curTop + d.h > pageBottom + 1) { page += 1; const delta = page * STRIDE + MARGIN - curTop; d.el.style.marginTop = `${delta}px`; push += delta; }
             }
             setPageCount(page + 1);
         };
-        const schedule = () => {
-            cancelAnimationFrame(raf);
-            raf = requestAnimationFrame(() => {
-                if (ro) ro.disconnect();
-                measureApply();
-                raf = requestAnimationFrame(() => { if (ro) ro.observe(sheet); });
-            });
-        };
+        const schedule = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (ro) ro.disconnect(); measureApply(); raf = requestAnimationFrame(() => { if (ro) ro.observe(sheet); }); }); };
         scheduleRef.current = schedule;
         const clearPushes = () => sheet.querySelectorAll('[data-block]').forEach((b) => { b.style.marginTop = ''; });
         schedule();
@@ -71,18 +78,12 @@ export default function ResumeWorkspace({ design }) {
         sheet.addEventListener('input', schedule);
         window.addEventListener('beforeprint', clearPushes);
         window.addEventListener('afterprint', schedule);
-        return () => {
-            cancelAnimationFrame(raf);
-            if (ro) ro.disconnect();
-            sheet.removeEventListener('input', schedule);
-            window.removeEventListener('beforeprint', clearPushes);
-            window.removeEventListener('afterprint', schedule);
-        };
+        return () => { cancelAnimationFrame(raf); if (ro) ro.disconnect(); sheet.removeEventListener('input', schedule); window.removeEventListener('beforeprint', clearPushes); window.removeEventListener('afterprint', schedule); };
     }, [design]);
 
-    useEffect(() => { scheduleRef.current(); }, [sections, itemsByType, design]);
+    useEffect(() => { scheduleRef.current(); }, [order, resume, design]);
 
-    /* text-format toolbar on selection */
+    /* ── selection format toolbar ── */
     useEffect(() => {
         const onSelect = () => {
             const sel = window.getSelection();
@@ -98,45 +99,56 @@ export default function ResumeWorkspace({ design }) {
         document.addEventListener('selectionchange', onSelect);
         return () => document.removeEventListener('selectionchange', onSelect);
     }, []);
-
     const format = (cmd) => document.execCommand(cmd, false, null);
     const addLink = () => {
         const sel = window.getSelection();
         if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
         const range = sel.getRangeAt(0).cloneRange();
-        const input = window.prompt('Enter the URL to link to:', 'https://');
-        if (!input) return;
-        let href = input.trim();
+        const inp = window.prompt('Enter the URL to link to:', 'https://');
+        if (!inp) return;
+        let href = inp.trim();
         if (!/^(https?:\/\/|mailto:|tel:)/i.test(href)) href = `https://${href}`;
-        sel.removeAllRanges();
-        sel.addRange(range);
+        sel.removeAllRanges(); sel.addRange(range);
         document.execCommand('createLink', false, href);
         sheetRef.current?.querySelectorAll('a:not([target])').forEach((a) => { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
     };
 
-    const moveSection = (from, to) => {
-        if (!from || from === to) return;
-        setSections((prev) => { const arr = prev.filter((t) => t !== from); const idx = to ? arr.indexOf(to) : arr.length; arr.splice(idx < 0 ? arr.length : idx, 0, from); return arr; });
+    /* ── download: save details (if signed in) then print ── */
+    const download = async () => {
+        if (authed) {
+            setSaving(true);
+            try { await userService.updateProfile(resumeToProfile(resume)); }
+            catch { /* keep going to print even if save fails */ }
+            finally { setSaving(false); }
+        }
+        window.print();
     };
-    const removeSection = (type) => setSections((prev) => prev.filter((t) => t !== type));
-    const addSection = (type) => {
-        setSections((prev) => (prev.includes(type) ? prev : [...prev, type]));
-        if (NEEDS_ITEMS.has(META[type].kind)) setItemsByType((s) => (s[type] ? s : { ...s, [type]: [nextId()] }));
-        setAdding(false);
-    };
-    const addItem = (type) => setItemsByType((s) => ({ ...s, [type]: [...(s[type] || []), nextId()] }));
-    const removeItem = (type, id) => setItemsByType((s) => { const arr = (s[type] || []).filter((x) => x !== id); return { ...s, [type]: arr.length ? arr : [nextId()] }; });
 
+    /* ── render one section body via the design slots ── */
     const renderBody = (type) => {
         const meta = META[type];
-        if (meta.kind === 'text') return <div data-block>{design.renderText(meta.ph)}</div>;
-        const items = itemsByType[type] || [];
+        if (meta.kind === 'text') {
+            return <div data-block>{design.renderText(resume[type] || '', (v) => setField(type, v), meta.ph)}</div>;
+        }
+        const items = resume[type] || [];
         return (
             <>
-                {items.map((id) => (
-                    <div key={id} data-block className={`group/item relative ${ITEM_MARGIN[meta.kind] || 'mb-2'}`}>
-                        <RemoveButton onClick={() => removeItem(type, id)} />
-                        {design.renderItem(meta.kind, { primaryPh: meta.primaryPh, secondaryPh: meta.secondaryPh, ph: meta.ph })}
+                {items.map((it) => (
+                    <div key={it.id} data-block className={`group/item relative ${ITEM_MARGIN[meta.kind] || 'mb-2'}`}>
+                        <RemoveButton onClick={() => removeItem(type, it.id)} />
+                        {design.renderItem(meta.kind, {
+                            item: it,
+                            update: (changes) => updateItem(type, it.id, changes),
+                            bullets: {
+                                list: it.bullets || [],
+                                update: (bid, text) => updateBullet(type, it.id, bid, text),
+                                add: () => addBullet(type, it.id),
+                                remove: (bid) => removeBullet(type, it.id, bid),
+                            },
+                            primaryPh: meta.primaryPh,
+                            secondaryPh: meta.secondaryPh,
+                            ph: meta.ph,
+                        })}
                     </div>
                 ))}
                 <AddButton onClick={() => addItem(type)}>Add {meta.addLabel || 'item'}</AddButton>
@@ -144,7 +156,7 @@ export default function ResumeWorkspace({ design }) {
         );
     };
 
-    const available = SECTION_CATALOG.filter((s) => !sections.includes(s.type));
+    const available = SECTION_CATALOG.filter((s) => !order.includes(s.type));
     const stackHeight = pageCount * PAGE + (pageCount - 1) * GAP;
 
     return (
@@ -182,15 +194,15 @@ export default function ResumeWorkspace({ design }) {
                     {design?.name && <span className="hidden rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700 sm:inline">{design.name}</span>}
                 </div>
                 <div className="flex items-center gap-3">
-                    <span className="hidden text-xs text-slate-400 md:inline">Click to edit · drag headings to reorder · no account needed</span>
-                    <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 rounded-full bg-teal-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-400">
+                    <span className="hidden text-xs text-slate-400 md:inline">{authed ? 'Your details are pre-filled · edits save on download' : 'Click to edit · no account needed'}</span>
+                    <button onClick={download} disabled={saving} className="inline-flex items-center gap-1.5 rounded-full bg-teal-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-400 disabled:opacity-60">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" /></svg>
-                        Download PDF
+                        {saving ? 'Saving…' : 'Download PDF'}
                     </button>
                 </div>
             </div>
 
-            {/* Format toolbar on selection */}
+            {/* Format toolbar */}
             {toolbar && (
                 <div className="no-print fixed z-[100000] flex -translate-x-1/2 gap-0.5 rounded-lg bg-slate-900 px-1 py-1 shadow-lg" style={{ top: toolbar.top, left: toolbar.left }} onMouseDown={(e) => e.preventDefault()}>
                     <button onClick={() => format('bold')} title="Bold" className="h-7 w-7 rounded text-sm font-bold text-white transition hover:bg-white/15">B</button>
@@ -211,9 +223,9 @@ export default function ResumeWorkspace({ design }) {
                     ))}
 
                     <div id="resume-sheet" ref={sheetRef} className={`relative z-10 ${design.sheetClass}`} style={{ padding: MARGIN }}>
-                        <header data-block>{design.renderHeader()}</header>
+                        <header data-block>{design.renderHeader(resume, setField)}</header>
 
-                        {sections.map((type) => (
+                        {order.map((type) => (
                             <div
                                 key={type}
                                 onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setOverType(type); }}
@@ -223,10 +235,8 @@ export default function ResumeWorkspace({ design }) {
                                 {overType === type && dragType && dragType !== type && (
                                     <div className="no-print pointer-events-none absolute -top-2 left-0 right-0 z-20 h-0.5 rounded bg-teal-500" />
                                 )}
-
                                 <div
-                                    data-block
-                                    draggable
+                                    data-block draggable
                                     onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', type); setDragType(type); }}
                                     onDragEnd={() => { setDragType(null); setOverType(null); }}
                                     title="Drag this heading to move the whole section"
@@ -237,21 +247,13 @@ export default function ResumeWorkspace({ design }) {
                                     </span>
                                     {design.renderTitle(META[type].title)}
                                 </div>
-
-                                <button
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => removeSection(type)}
-                                    title="Remove this section"
-                                    className="no-print absolute -right-9 top-6 hidden h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-500 group-hover/sec:flex group-focus-within/sec:flex"
-                                >
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => removeSection(type)} title="Remove this section" className="no-print absolute -right-9 top-6 hidden h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-500 group-hover/sec:flex group-focus-within/sec:flex">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
-
                                 {renderBody(type)}
                             </div>
                         ))}
 
-                        {/* Add a section — at the end of the page content (never printed) */}
                         <div className="no-print mt-8">
                             {!adding ? (
                                 <button onClick={() => setAdding(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold text-slate-500 transition hover:border-teal-400 hover:bg-teal-50/40 hover:text-teal-600">
@@ -275,9 +277,7 @@ export default function ResumeWorkspace({ design }) {
                                                 </button>
                                             ))}
                                         </div>
-                                    ) : (
-                                        <p className="text-sm text-slate-400">All available sections have been added.</p>
-                                    )}
+                                    ) : <p className="text-sm text-slate-400">All available sections have been added.</p>}
                                 </div>
                             )}
                         </div>
