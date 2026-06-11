@@ -34,6 +34,8 @@ public class UserDoc {
 
     private Long sourceTemplateId;
 
+    private String templateCode;
+
     @Column(nullable = false)
     private String name;
 

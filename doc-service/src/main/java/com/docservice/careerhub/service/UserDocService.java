@@ -30,18 +30,29 @@ public class UserDocService {
     @Autowired
     private StorageService storageService;
 
+    @Autowired
+    private LatexMergeService latexMergeService;
+
+    @Autowired
+    private ResumeDataResolver resumeDataResolver;
+
     @Transactional
     public UserDoc saveTemplateToAccount(String ownerEmail, Long templateId) {
         DocTemplate template = docTemplateRepository.findById(templateId)
                 .orElseThrow(() -> ApiException.notFound("Doc template not found: " + templateId));
 
+        // The template's latexCode is a Mustache placeholder template — fill it with the user's
+        // saved details (or the sample fallback) so the LaTeX editor opens real, compilable LaTeX.
+        String merged = latexMergeService.merge(template.getLatexCode(), resumeDataResolver.forUser(ownerEmail));
+
         UserDoc doc = new UserDoc();
         doc.setOwnerEmail(ownerEmail);
         doc.setSourceTemplateId(template.getId());
+        doc.setTemplateCode(template.getTemplateCode());
         doc.setName(template.getName());
         doc.setType(template.getType());
         doc.setDescription(template.getDescription());
-        doc.setLatexCode(template.getLatexCode());
+        doc.setLatexCode(merged);
         doc.setPdfUrl(template.getPdfUrl());
         doc.setImageUrl(template.getImageUrl());
         doc.setStatus(template.getPdfUrl() != null ? DocTemplateStatus.READY : DocTemplateStatus.PENDING);

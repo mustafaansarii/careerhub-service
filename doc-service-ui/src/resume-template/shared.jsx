@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import SAMPLE_RESUME from './sampleResume';
 
 /*
  * Shared engine for the form-based resume builder.
@@ -53,9 +54,9 @@ export function blankItem(kind) {
     }
 }
 
-/** Build the editable model from a saved profile object (or empty → starter sections). */
+/** Build the editable model from a saved profile object; falls back to the sample when empty. */
 export function profileToResume(profile) {
-    const p = profile || {};
+    const p = (profile && Object.keys(profile).length) ? profile : SAMPLE_RESUME;
     const resume = {};
     TEXT_FIELDS.forEach((k) => { resume[k] = p[k] || ''; });
 

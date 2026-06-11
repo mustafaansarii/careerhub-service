@@ -1,0 +1,72 @@
+\documentclass[letterpaper,11pt]{article}
+\usepackage[margin=0.6in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tabularx}
+\definecolor{accent}{HTML}{0F766E}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\urlstyle{same}
+\setlist[itemize]{leftmargin=1.2em, topsep=1pt, itemsep=1pt}
+\titleformat{\section}{\large\bfseries\color{accent}}{}{0em}{}[{\color{accent}\titlerule}]
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+
+\begin{document}
+
+% ---------- Header ----------
+{\Huge\bfseries {{ name }}}\\[3pt]
+{{#title}}{\large\color{accent} {{ title }}}\\[4pt]{{/title}}
+{\small
+{{#location}}{{ location }}{{/location}}{{#phone}} \textbar\ {{ phone }}{{/phone}}{{#email}} \textbar\ \href{mailto:{{{ email }}}}{ {{ email }} }{{/email}}{{#linkedinUrl}} \textbar\ \href{ {{{ linkedinUrl }}} }{ {{ linkedin }} }{{/linkedinUrl}}{{#githubUrl}} \textbar\ \href{ {{{ githubUrl }}} }{ {{ github }} }{{/githubUrl}}
+}
+
+{{#summary}}
+\section{Summary}
+{{ summary }}
+{{/summary}}
+
+{{#hasExperience}}
+\section{Experience}
+{{#experience}}
+\textbf{ {{ role }} }{{#company}}, {{ company }}{{/company}} \hfill {{#location}}{{ location }} \quad {{/location}}{{ period }}
+\begin{itemize}
+{{#bullets}}\item {{ . }}
+{{/bullets}}\end{itemize}
+{{/experience}}
+{{/hasExperience}}
+
+{{#hasProjects}}
+\section{Projects}
+{{#projects}}
+\textbf{ {{ name }} }{{#tech}} \textbar\ \textit{ {{ tech }} }{{/tech}}{{#githubUrl}} \hfill \href{ {{{ githubUrl }}} }{\color{accent}Code}{{/githubUrl}}{{#liveUrl}} \textbar\ \href{ {{{ liveUrl }}} }{\color{accent}Live}{{/liveUrl}}
+\begin{itemize}
+{{#bullets}}\item {{ . }}
+{{/bullets}}\end{itemize}
+{{/projects}}
+{{/hasProjects}}
+
+{{#hasSkills}}
+\section{Skills}
+\begin{itemize}[label={}, leftmargin=0pt]
+{{#skills}}\item \textbf{ {{ label }}:} {{ value }}
+{{/skills}}\end{itemize}
+{{/hasSkills}}
+
+{{#hasEducation}}
+\section{Education}
+{{#education}}
+\textbf{ {{ school }} } \hfill {{ location }}\\
+\textit{ {{ degree }} } \hfill {{ period }}\\[4pt]
+{{/education}}
+{{/hasEducation}}
+
+{{#hasAchievements}}
+\section{Achievements}
+\begin{itemize}
+{{#achievements}}\item {{ . }}
+{{/achievements}}\end{itemize}
+{{/hasAchievements}}
+
+\end{document}

@@ -9,6 +9,8 @@ import lombok.Data;
 @Data
 public class CreateDocTemplateRequest {
 
+    private String templateCode;
+
     @NotBlank(message = "name is required")
     private String name;
 
@@ -18,7 +20,6 @@ public class CreateDocTemplateRequest {
     @Size(max = 1000, message = "description must be at most 1000 characters")
     private String description;
 
-    /** Optional preview/thumbnail image URL. */
     private String imageUrl;
 
     @NotBlank(message = "latexCode is required")

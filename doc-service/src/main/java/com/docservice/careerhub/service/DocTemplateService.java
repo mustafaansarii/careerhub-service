@@ -68,6 +68,7 @@ public class DocTemplateService {
 
     private DocTemplate newPending(CreateDocTemplateRequest request) {
         DocTemplate template = new DocTemplate();
+        template.setTemplateCode(request.getTemplateCode());
         template.setName(request.getName());
         template.setType(request.getType());
         template.setDescription(request.getDescription());

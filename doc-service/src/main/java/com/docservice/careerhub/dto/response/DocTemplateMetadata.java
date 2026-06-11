@@ -12,6 +12,7 @@ import java.time.Instant;
 public class DocTemplateMetadata {
 
     private Long id;
+    private String templateCode;
     private String name;
     private DocType type;
     private String description;

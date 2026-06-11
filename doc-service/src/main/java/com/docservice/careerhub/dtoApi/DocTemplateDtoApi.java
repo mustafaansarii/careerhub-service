@@ -56,6 +56,7 @@ public class DocTemplateDtoApi extends AbstractDtoUtil {
     private DocTemplateMetadata toMetadata(DocTemplate template) {
         return DocTemplateMetadata.builder()
                 .id(template.getId())
+                .templateCode(template.getTemplateCode())
                 .name(template.getName())
                 .type(template.getType())
                 .description(template.getDescription())

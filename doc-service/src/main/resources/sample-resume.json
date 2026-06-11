@@ -1,0 +1,53 @@
+{
+  "name": "Willim Lucas",
+  "location": "London, UK 009088",
+  "phone": "+44 1234 567890",
+  "email": "willim.lucas@email.com",
+  "linkedin": "linkedin/willimlucas",
+  "linkedinUrl": "https://www.linkedin.com/in/willimlucas",
+  "github": "github/willimlucas",
+  "githubUrl": "https://github.com/willimlucas",
+  "summary": "Computer Science graduate with hands-on full-stack experience building scalable web platforms and a strong foundation in data structures and algorithms.",
+  "education": [
+    { "school": "University of Cambridge", "period": "2022-26", "degree": "B.Tech in Computer Science Engineering; CGPA: 8.83/10.0", "location": "Uk, England" }
+  ],
+  "skills": [
+    { "label": "Languages", "value": "Java, Python, JavaScript" },
+    { "label": "Coursework", "value": "Data Structures and Algorithms, Computer Networks, Operating Systems, DBMS, OOPS" },
+    { "label": "Full Stack Development", "value": "Spring Boot, ReactJS, Flask, MySQL, MongoDB, REST APIs, HTML5, CSS, Tailwind CSS" },
+    { "label": "Developer Tools", "value": "Docker, Git/GitHub, IntelliJ IDEA, PyCharm, Linux, Jupyter Notebook" },
+    { "label": "Exposure", "value": "Machine Learning, Data Analysis" }
+  ],
+  "experience": [
+    {
+      "company": "Nexus info", "period": "Dec 2024 - Feb 2025", "role": "SDE Intern", "location": "Remote",
+      "bullets": [
+        "Developed a high-performance financial analytics platform using Spring Boot and microservices architecture, improving system scalability and ensuring 99.8% uptime.",
+        "Optimized database queries with indexing and query optimization techniques, reducing query execution time by 50% and enhancing application performance."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "CareerHub", "tech": "Spring Boot, React.js, Django, Tailwind CSS, LLM", "githubUrl": "https://github.com/CareerHub", "liveUrl": "https://www.careerhubs.info/",
+      "bullets": [
+        "Engineered a career development platform with AI-driven tutorials and resume optimization tools, increasing user retention by 55% and boosting course completion rates by 40%.",
+        "Integrated an LLM-powered content generator, producing 480+ structured tutorials and reducing manual content creation time by 70%."
+      ]
+    },
+    {
+      "name": "AI Mock Interview", "tech": "Next.js, Tailwind CSS, Flask, LLM", "githubUrl": "https://github.com/AI-Mock-Interview", "liveUrl": "https://interview.careerhubs.info/",
+      "bullets": [
+        "Architected an AI-powered mock interview platform using LLMs to generate personalized real-time interview questions and feedback, resulting in a 40% increase in user engagement.",
+        "Integrated speech-to-text processing and adaptive question difficulty, improving candidate evaluation accuracy by 60% and reducing interview time by 30%."
+      ]
+    }
+  ],
+  "achievements": [
+    "Ranked in the top 5% of competitive programmers on CodeChef and LeetCode.",
+    "Solved over 1200 coding challenges on LeetCode, CodeChef, and GeeksforGeeks.",
+    "Earned 5-star ratings in both Python and Java on HackerRank.",
+    "Currently serving as the Technical Head of MMDU E-Cell, leading technical projects.",
+    "Active member of the EddieHub Community since 2022, contributing to open-source development."
+  ]
+}
