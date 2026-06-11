@@ -12,15 +12,6 @@ function initialsOf(profile) {
     return (parts[0]?.[0] || '?').concat(parts[1]?.[0] || '').toUpperCase();
 }
 
-function Badge({ ok, okText, noText }) {
-    return (
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${ok ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-amber-50 text-amber-700 ring-amber-200'}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${ok ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-            {ok ? okText : noText}
-        </span>
-    );
-}
-
 export default function ProfilePage() {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -63,97 +54,60 @@ export default function ProfilePage() {
                 <PageHero
                     breadcrumb="My Account"
                     title="My Profile"
-                    description="Your account details, verification status, and quick links — all in one place."
+                    description="Manage your account and the resume details we reuse to pre-fill the builder."
                 />
             </div>
 
-            <main className="mx-auto -mt-10 max-w-4xl px-4 pb-24 sm:px-6 lg:px-8">
+            <main className="mx-auto -mt-12 max-w-5xl px-4 pb-24 sm:px-6 lg:px-8">
                 {loading ? (
                     <div className="space-y-6">
-                        <div className="h-40 animate-pulse rounded-3xl bg-slate-100" />
-                        <div className="h-64 animate-pulse rounded-3xl bg-slate-100" />
+                        <div className="h-44 animate-pulse rounded-3xl bg-slate-200/70" />
+                        <div className="h-72 animate-pulse rounded-3xl bg-slate-200/70" />
                     </div>
                 ) : profile ? (
                     <div className="space-y-6">
                         {/* Header card */}
                         <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5">
-                            <div className="h-24 bg-gradient-to-r from-teal-500 via-teal-400 to-cyan-400" />
+                            <div className="h-28 bg-gradient-to-r from-teal-600 via-teal-500 to-cyan-400" />
                             <div className="px-6 pb-6 sm:px-8">
-                                <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
-                                    <div className="-mt-12 flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border-4 border-white bg-gradient-to-br from-slate-800 to-slate-600 text-2xl font-bold text-white shadow-lg">
-                                        {initialsOf(profile)}
+                                <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                                    <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
+                                        <div className="-mt-14 flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border-4 border-white bg-gradient-to-br from-slate-800 to-slate-600 text-2xl font-bold text-white shadow-lg">
+                                            {initialsOf(profile)}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h1 className="truncate text-2xl font-bold text-slate-900">{profile.fullName || 'Your name'}</h1>
+                                            <p className="truncate text-sm text-slate-500">{profile.email || '—'}</p>
+                                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                                                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${profile.verified ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-amber-50 text-amber-700 ring-amber-200'}`}>
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${profile.verified ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                                                    {profile.verified ? 'Verified' : 'Unverified'}
+                                                </span>
+                                                {roles.map((r) => (
+                                                    <span key={r} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{r}</span>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="min-w-0 flex-1 sm:pb-1">
-                                        <h1 className="truncate text-2xl font-bold text-slate-900">{profile.fullName || 'Your name'}</h1>
-                                        <p className="truncate text-sm text-slate-500">{profile.email || '—'}</p>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2 sm:pb-1">
-                                        <Badge ok={profile.verified} okText="Verified" noText="Unverified" />
-                                        <Badge ok={profile.active} okText="Active" noText="Disabled" />
+                                    <div className="flex shrink-0 gap-2">
+                                        <Link to="/resume-builder" className="inline-flex items-center gap-1.5 rounded-full bg-teal-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-400">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-6 4h4m3 4H8a2 2 0 01-2-2V5a2 2 0 012-2h6l4 4v12a2 2 0 01-2 2z" /></svg>
+                                            Open Resume Builder
+                                        </Link>
                                     </div>
                                 </div>
-
-                                {roles.length > 0 && (
-                                    <div className="mt-5 flex flex-wrap items-center gap-2">
-                                        <span className="text-xs font-medium uppercase tracking-wide text-slate-400">Roles</span>
-                                        {roles.map((r) => (
-                                            <span key={r} className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700 ring-1 ring-teal-200">
-                                                {r}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
                         </section>
 
-                        {/* Details + quick links */}
-                        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-                            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-                                <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">Account details</h2>
-                                <dl className="divide-y divide-slate-100 text-sm">
-                                    {[
-                                        { label: 'Full name', value: profile.fullName || '—' },
-                                        { label: 'Email address', value: profile.email || '—' },
-                                        { label: 'Role', value: roles.length ? roles.join(', ') : '—' },
-                                        { label: 'Email verified', value: profile.verified ? 'Yes' : 'No' },
-                                        { label: 'Account status', value: profile.active ? 'Active' : 'Disabled' },
-                                    ].map(({ label, value }) => (
-                                        <div key={label} className="flex items-center justify-between gap-4 py-3.5">
-                                            <dt className="text-slate-500">{label}</dt>
-                                            <dd className="truncate text-right font-medium text-slate-900">{value}</dd>
-                                        </div>
-                                    ))}
-                                </dl>
-                            </section>
-
-                            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-                                <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">Quick links</h2>
-                                <div className="space-y-2.5">
-                                    <Link to="/my-templates" className="group flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-teal-300 hover:bg-teal-50/50">
-                                        My Documents
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-teal-600"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                                    </Link>
-                                    <Link to="/templates" className="group flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-teal-300 hover:bg-teal-50/50">
-                                        Browse Templates
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-teal-600"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                                    </Link>
-                                    <Link to="/settings" className="group flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-teal-300 hover:bg-teal-50/50">
-                                        Settings
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-teal-600"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                                    </Link>
-                                </div>
-                            </section>
-                        </div>
-
-                        {/* Resume details */}
+                        {/* Resume details — the main section */}
                         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-                            <div className="mb-4 flex items-center justify-between gap-4">
+                            <div className="mb-5 flex items-start justify-between gap-4">
                                 <div>
-                                    <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">Resume details</h2>
-                                    <p className="mt-1 text-xs text-slate-400">Saved to your account and reused to prefill the resume builder.</p>
+                                    <h2 className="text-base font-bold text-slate-900">Resume details</h2>
+                                    <p className="mt-0.5 text-sm text-slate-500">Saved to your account and used to pre-fill the resume builder.</p>
                                 </div>
                                 {!editing && (
-                                    <button onClick={() => setEditing(true)} className="shrink-0 rounded-full bg-teal-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-400">
+                                    <button onClick={() => setEditing(true)} className="shrink-0 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
                                         {details ? 'Edit details' : 'Add details'}
                                     </button>
                                 )}
@@ -161,11 +115,28 @@ export default function ProfilePage() {
 
                             {editing ? (
                                 <ProfileDetailsForm initial={details} onCancel={() => setEditing(false)} onSave={saveDetails} />
-                            ) : details ? (
+                            ) : details && Object.keys(details).length ? (
                                 <DetailsSummary d={details} />
                             ) : (
-                                <p className="text-sm text-slate-400">No resume details yet. Click <span className="font-medium text-slate-600">Add details</span> to fill in your experience, education, skills and more.</p>
+                                <EmptyDetails onAdd={() => setEditing(true)} />
                             )}
+                        </section>
+
+                        {/* Quick links */}
+                        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+                            <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-400">Quick links</h2>
+                            <div className="grid gap-2.5 sm:grid-cols-3">
+                                {[
+                                    { to: '/my-templates', label: 'My Documents' },
+                                    { to: '/templates', label: 'Browse Templates' },
+                                    { to: '/settings', label: 'Settings' },
+                                ].map((l) => (
+                                    <Link key={l.to} to={l.to} className="group flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-teal-300 hover:bg-teal-50/50">
+                                        {l.label}
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-teal-600"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                                    </Link>
+                                ))}
+                            </div>
                         </section>
 
                         <DeleteAccountSection />
@@ -180,34 +151,88 @@ export default function ProfilePage() {
     );
 }
 
-function DetailsSummary({ d }) {
-    const counts = [
-        ['Experience', d.experience?.length],
-        ['Projects', d.projects?.length],
-        ['Education', d.education?.length],
-        ['Skill groups', d.skills?.length],
-        ['Achievements', d.achievements?.length],
-    ].filter(([, n]) => n);
+function EmptyDetails({ onAdd }) {
     return (
-        <div className="space-y-4 text-sm">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
-                {[
-                    ['Name', d.name], ['Location', d.location], ['Phone', d.phone], ['Email', d.email],
-                    ['LinkedIn', d.linkedin || d.linkedinUrl], ['GitHub', d.github || d.githubUrl],
-                ].filter(([, v]) => v).map(([k, v]) => (
-                    <div key={k} className="flex justify-between gap-3 border-b border-slate-100 py-1.5">
-                        <span className="text-slate-500">{k}</span>
-                        <span className="truncate text-right font-medium text-slate-800">{v}</span>
-                    </div>
-                ))}
+        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 py-12 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-50 text-teal-600">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-6 w-6"><path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-6 4h4m3 4H8a2 2 0 01-2-2V5a2 2 0 012-2h6l4 4v12a2 2 0 01-2 2z" /></svg>
             </div>
-            {counts.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-1">
-                    {counts.map(([k, n]) => (
-                        <span key={k} className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700 ring-1 ring-teal-200">{n} {k}</span>
+            <p className="text-sm text-slate-500">No resume details yet — add your experience, education and skills once and reuse them everywhere.</p>
+            <button onClick={onAdd} className="rounded-full bg-teal-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-400">Add details</button>
+        </div>
+    );
+}
+
+function SubSection({ title, count, children }) {
+    if (!count) return null;
+    return (
+        <div>
+            <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">{title}</h3>
+            <div className="space-y-2">{children}</div>
+        </div>
+    );
+}
+
+function EntryRow({ primary, secondary, meta }) {
+    return (
+        <div className="flex items-start justify-between gap-4 rounded-xl border border-slate-100 bg-slate-50/60 px-4 py-2.5">
+            <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-slate-800">{primary || '—'}</p>
+                {secondary && <p className="truncate text-xs text-slate-500">{secondary}</p>}
+            </div>
+            {meta && <span className="shrink-0 text-xs text-slate-400">{meta}</span>}
+        </div>
+    );
+}
+
+function DetailsSummary({ d }) {
+    const contact = [
+        ['Location', d.location], ['Phone', d.phone], ['Email', d.email],
+        ['LinkedIn', d.linkedin || d.linkedinUrl], ['GitHub', d.github || d.githubUrl],
+    ].filter(([, v]) => v);
+
+    return (
+        <div className="space-y-7">
+            {contact.length > 0 && (
+                <div className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
+                    {contact.map(([k, v]) => (
+                        <div key={k} className="flex items-center justify-between gap-3 border-b border-slate-100 py-1.5 text-sm">
+                            <span className="text-slate-500">{k}</span>
+                            <span className="truncate text-right font-medium text-slate-800">{v}</span>
+                        </div>
                     ))}
                 </div>
             )}
+
+            {d.summary && (
+                <SubSection title="Summary" count={1}>
+                    <p className="text-sm leading-relaxed text-slate-600">{d.summary}</p>
+                </SubSection>
+            )}
+
+            <SubSection title="Experience" count={d.experience?.length}>
+                {(d.experience || []).map((e, i) => <EntryRow key={i} primary={e.company} secondary={e.role} meta={e.period} />)}
+            </SubSection>
+
+            <SubSection title="Projects" count={d.projects?.length}>
+                {(d.projects || []).map((p, i) => <EntryRow key={i} primary={p.name} secondary={p.tech} />)}
+            </SubSection>
+
+            <SubSection title="Education" count={d.education?.length}>
+                {(d.education || []).map((e, i) => <EntryRow key={i} primary={e.school} secondary={e.degree} meta={e.period} />)}
+            </SubSection>
+
+            <SubSection title="Skills" count={d.skills?.length}>
+                {(d.skills || []).map((s, i) => (
+                    <p key={i} className="text-sm text-slate-700"><span className="font-semibold text-slate-800">{s.label}:</span> {s.value}</p>
+                ))}
+            </SubSection>
+
+            <SubSection title="Achievements" count={d.achievements?.length}>
+                <ul className="list-disc space-y-1 pl-5 text-sm text-slate-600">
+                    {(d.achievements || []).map((a, i) => <li key={i}>{typeof a === 'string' ? a : a.text}</li>)}
+                </ul>
+            </SubSection>
         </div>
     );
 }
@@ -231,37 +256,21 @@ function DeleteAccountSection() {
     };
 
     return (
-        <section className="rounded-3xl border border-red-200 bg-red-50/50 p-6 sm:p-8">
+        <section className="rounded-3xl border border-red-200 bg-red-50/40 p-6 sm:p-8">
             <h2 className="text-sm font-bold uppercase tracking-wide text-red-600">Danger zone</h2>
-            <p className="mt-1 mb-5 text-sm text-slate-500">
-                Permanently delete your account and all associated documents. This action cannot be undone.
-            </p>
-
+            <p className="mt-1 mb-5 text-sm text-slate-500">Permanently delete your account and all associated documents. This action cannot be undone.</p>
             {!confirming ? (
-                <button
-                    onClick={() => setConfirming(true)}
-                    className="rounded-xl border border-red-300 bg-white px-5 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-600 hover:text-white"
-                >
+                <button onClick={() => setConfirming(true)} className="rounded-xl border border-red-300 bg-white px-5 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-600 hover:text-white">
                     Delete my account
                 </button>
             ) : (
                 <div className="rounded-2xl border border-red-200 bg-white p-5">
-                    <p className="mb-4 text-sm font-semibold text-red-700">
-                        Are you sure? This will permanently delete your account and documents.
-                    </p>
+                    <p className="mb-4 text-sm font-semibold text-red-700">Are you sure? This will permanently delete your account and documents.</p>
                     <div className="flex flex-col gap-3 sm:flex-row">
-                        <button
-                            onClick={handleDelete}
-                            disabled={deleting}
-                            className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
-                        >
+                        <button onClick={handleDelete} disabled={deleting} className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60">
                             {deleting ? 'Deleting…' : 'Yes, delete my account'}
                         </button>
-                        <button
-                            onClick={() => setConfirming(false)}
-                            disabled={deleting}
-                            className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
-                        >
+                        <button onClick={() => setConfirming(false)} disabled={deleting} className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60">
                             Cancel
                         </button>
                     </div>
