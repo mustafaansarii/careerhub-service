@@ -1,73 +1,53 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import paymentService, { PLANS, loadCashfree } from '../../services/payment.service';
+import authService from '../../services/auth.service';
 
-const plans = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: 399,
-    period: 'month',
-    tagline: 'Perfect for beginners ready to kickstart their career journey.',
-    badge: 'Value for money',
-    cta: 'Get Started',
-    ctaTo: '/signup',
+const PLAN_DETAILS = {
+  BASIC: {
+    tagline: 'Perfect when you just need one polished resume.',
+    badge: 'Starter',
+    cta: 'Get Starter',
     features: [
-      'Resume Builder (3 templates)',
-      'ATS Score Checker',
-      'DSA Sheet Access',
-      '10 Mock Interview Credits',
-      'Community Forum Access',
-      'Email Support',
+      'Download 1 resume',
+      'All resume templates',
+      'AI resume import (PDF / DOCX)',
+      'ATS-friendly PDF export',
+      'Valid for 1 year',
     ],
-    excluded: [
-      'Peer Mock Interviews',
-      'AI Career Roadmap',
-      'Priority Support',
-    ],
+    excluded: ['LaTeX source editor', 'Priority support'],
   },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 499,
-    period: 'month',
-    tagline: 'For serious learners who want structured, guided growth.',
+  STANDARD: {
+    tagline: 'For an active job hunt — tailor a resume per role.',
     badge: 'Most Popular',
-    cta: 'Start Pro',
-    ctaTo: '/signup?plan=pro',
+    cta: 'Get Pro',
     features: [
-      'Resume Builder (All templates)',
-      'ATS Score Checker + Suggestions',
-      'DSA Sheet + Video Explanations',
-      '30 Mock Interview Credits',
-      'Peer Mock Interviews',
-      'AI Career Roadmap',
-      'Curated Learning Paths',
-      'Priority Email Support',
+      'Download up to 5 resumes',
+      'All resume templates',
+      'AI resume import (PDF / DOCX)',
+      'LaTeX source editor',
+      'ATS-friendly PDF export',
+      'Valid for 1 year',
     ],
-    excluded: ['Dedicated Mentor Sessions'],
+    excluded: ['Priority support'],
   },
-  {
-    id: 'elite',
-    name: 'Elite',
-    price: 999,
-    period: 'month',
-    tagline: 'End-to-end career acceleration with 1-on-1 expert guidance.',
+  UNLIMITED: {
+    tagline: 'Unlimited downloads for power users and career switchers.',
     badge: 'Best Value',
-    cta: 'Go Elite',
-    ctaTo: '/signup?plan=elite',
+    cta: 'Go Unlimited',
     features: [
-      'Everything in Pro',
-      'Unlimited Mock Interview Credits',
-      '3× Dedicated Mentor Sessions / mo',
-      'Resume Review by Industry Expert',
-      'LinkedIn Profile Audit',
-      'Referral Network Access',
-      'Job Placement Assistance',
-      'Whatsapp + Priority Support',
+      'Unlimited resume downloads',
+      'All resume templates',
+      'AI resume import (PDF / DOCX)',
+      'LaTeX source editor',
+      'ATS-friendly PDF export',
+      'Priority support',
+      'Valid for 1 year',
     ],
     excluded: [],
   },
-];
+};
 
 function CheckIcon() {
   return (
@@ -85,44 +65,45 @@ function CrossIcon() {
   );
 }
 
-function PricingCard({ plan, isPopular }) {
+function PricingCard({ plan, isPopular, isCurrent, busy, onBuy }) {
+  const details = PLAN_DETAILS[plan.code];
   return (
     <div className="relative flex flex-col h-full">
 
-      {plan.badge && (
+      {details.badge && (
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-black/50 dark:border-white/50 bg-white dark:bg-black px-3 py-0.5 text-[11px] font-bold uppercase tracking-widest text-slate-900 dark:text-white">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-black/50 bg-white px-3 py-0.5 text-[11px] font-bold uppercase tracking-widest text-slate-900">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal-500" />
-            {plan.badge}
+            {details.badge}
           </span>
         </div>
       )}
 
       <div className="px-7 pt-10 pb-6">
-        <p className={`text-[11px] font-bold uppercase tracking-widest ${isPopular ? 'text-teal-500' : 'text-slate-400 dark:text-slate-500'}`}>
-          {plan.name}
+        <p className={`text-[11px] font-bold uppercase tracking-widest ${isPopular ? 'text-teal-500' : 'text-slate-400'}`}>
+          {plan.title}
         </p>
         <div className="mt-4 flex items-end gap-1">
-          <span className="text-sm font-semibold text-slate-400 dark:text-slate-500 mb-2">₹</span>
-          <span className={`text-6xl font-black tracking-tighter leading-none ${isPopular ? 'text-teal-600 dark:text-teal-400' : 'text-slate-900 dark:text-white'}`}>
+          <span className="text-sm font-semibold text-slate-400 mb-2">₹</span>
+          <span className={`text-6xl font-black tracking-tighter leading-none ${isPopular ? 'text-teal-600' : 'text-slate-900'}`}>
             {plan.price}
           </span>
-          <span className="text-sm text-slate-400 dark:text-slate-500 mb-2">/{plan.period}</span>
+          <span className="text-sm text-slate-400 mb-2">one-time</span>
         </div>
-        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          {plan.tagline}
+        <p className="mt-3 text-sm text-slate-500 leading-relaxed">
+          {details.tagline}
         </p>
       </div>
 
       <ul className="flex-1 px-7 py-6 space-y-3">
-        {plan.features.map((f) => (
-          <li key={f} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
+        {details.features.map((f) => (
+          <li key={f} className="flex items-start gap-3 text-sm text-slate-700">
             <CheckIcon />
             <span>{f}</span>
           </li>
         ))}
-        {plan.excluded.map((f) => (
-          <li key={f} className="flex items-start gap-3 text-sm text-slate-400 dark:text-slate-600 line-through">
+        {details.excluded.map((f) => (
+          <li key={f} className="flex items-start gap-3 text-sm text-slate-400 line-through">
             <CrossIcon />
             <span>{f}</span>
           </li>
@@ -130,78 +111,115 @@ function PricingCard({ plan, isPopular }) {
       </ul>
 
       <div className="px-7 py-6">
-        <Link
-          to={plan.ctaTo}
+        <button
+          onClick={() => onBuy(plan.code)}
+          disabled={busy !== null || isCurrent}
           className={[
-            'flex w-full items-center justify-center gap-2 border px-4 py-3 text-sm font-semibold transition-all duration-200',
+            'flex w-full items-center justify-center gap-2 border px-4 py-3 text-sm font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60',
             isPopular
-              ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:opacity-80'
-              : 'border-black/30 dark:border-white/30 text-slate-800 dark:text-white hover:border-black dark:hover:border-white',
+              ? 'border-black bg-black text-white hover:opacity-80'
+              : 'border-black/30 text-slate-800 hover:border-black',
           ].join(' ')}
         >
-          {plan.cta}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4-4 4M3 12h18" />
-          </svg>
-        </Link>
+          {isCurrent ? 'Current plan' : busy === plan.code ? 'Starting…' : details.cta}
+          {!isCurrent && busy !== plan.code && (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4-4 4M3 12h18" />
+            </svg>
+          )}
+        </button>
       </div>
     </div>
   );
 }
 
 export default function PricingFeature() {
-  const [billingCycle, setBillingCycle] = useState('monthly');
+  const navigate = useNavigate();
+  const authed = authService.isAuthenticated();
+  const [busy, setBusy] = useState(null);
+  const [entitlement, setEntitlement] = useState(null);
+
+  const refreshEntitlement = () => {
+    if (!authed) return;
+    paymentService.getEntitlement().then(setEntitlement).catch(() => {});
+  };
+
+  useEffect(refreshEntitlement, [authed]);
+
+  const buy = async (code) => {
+    if (!authed) {
+      toast('Sign in to upgrade');
+      navigate('/login');
+      return;
+    }
+    setBusy(code);
+    try {
+      const order = await paymentService.createOrder(code);
+      const cashfree = await loadCashfree();
+      const result = await cashfree.checkout({ paymentSessionId: order.paymentSessionId, redirectTarget: '_modal' });
+      if (result?.error) {
+        toast.error(result.error.message || 'Payment was cancelled');
+        return;
+      }
+      const verification = await paymentService.verify(order.orderId);
+      if (String(verification?.orderStatus).toUpperCase() === 'PAID') {
+        toast.success('Payment successful — you\'re upgraded!');
+        refreshEntitlement();
+      } else {
+        toast('Payment not completed yet. If you were charged, it will reflect shortly.');
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Could not start the payment');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const activePlan = entitlement?.active ? entitlement.plan : null;
 
   return (
     <section className="w-full">
 
-      <div className="flex items-center justify-center gap-3 py-10 px-4">
-        {['monthly', 'yearly'].map((cycle) => (
-          <button
-            key={cycle}
-            onClick={() => setBillingCycle(cycle)}
-            className={[
-              'rounded-full border px-5 py-1.5 text-xs font-semibold capitalize transition-all',
-              billingCycle === cycle
-                ? 'border-black dark:border-white text-black dark:text-white'
-                : 'border-black/20 dark:border-white/20 text-slate-400 hover:border-black/50 dark:hover:border-white/50',
-            ].join(' ')}
-          >
-            {cycle}
-            {cycle === 'yearly' && <span className="ml-1.5 text-teal-500">–20%</span>}
-          </button>
-        ))}
+      <div className="flex flex-col items-center justify-center gap-2 py-10 px-4 text-center">
+        <p className="text-sm font-semibold text-slate-700">One-time payment · valid for 1 year · no auto-renewal</p>
+        {entitlement?.active && (
+          <p className="text-xs text-teal-600">
+            You're on the <span className="font-bold">{entitlement.unlimited ? 'Unlimited' : entitlement.plan}</span> plan
+            {!entitlement.unlimited && typeof entitlement.creditsRemaining === 'number' && entitlement.creditsRemaining >= 0
+              ? ` — ${entitlement.creditsRemaining} download${entitlement.creditsRemaining === 1 ? '' : 's'} left`
+              : ''}
+          </p>
+        )}
       </div>
 
-      <div className="w-full h-px bg-black/50 dark:bg-white/50" />
+      <div className="w-full h-px bg-black/50" />
 
       <div className="relative mx-auto max-w-5xl">
 
-        <div className="pointer-events-none absolute left-0   top-0 bottom-0 w-px bg-black/50 dark:bg-white/50 hidden md:block" />
-        <div className="pointer-events-none absolute left-1/3 top-0 bottom-0 w-px bg-black/50 dark:bg-white/50 hidden md:block" />
-        <div className="pointer-events-none absolute left-2/3 top-0 bottom-0 w-px bg-black/50 dark:bg-white/50 hidden md:block" />
-        <div className="pointer-events-none absolute right-0  top-0 bottom-0 w-px bg-black/50 dark:bg-white/50 hidden md:block" />
+        <div className="pointer-events-none absolute left-0   top-0 bottom-0 w-px bg-black/50 hidden md:block" />
+        <div className="pointer-events-none absolute left-1/3 top-0 bottom-0 w-px bg-black/50 hidden md:block" />
+        <div className="pointer-events-none absolute left-2/3 top-0 bottom-0 w-px bg-black/50 hidden md:block" />
+        <div className="pointer-events-none absolute right-0  top-0 bottom-0 w-px bg-black/50 hidden md:block" />
 
         <div className="grid grid-cols-1 md:grid-cols-3">
-          {plans.map((plan) => (
+          {PLANS.map((plan) => (
             <PricingCard
-              key={plan.id}
-              plan={billingCycle === 'yearly'
-                ? { ...plan, price: Math.round(plan.price * 0.8) }
-                : plan}
-              isPopular={plan.badge === 'Most Popular'}
+              key={plan.code}
+              plan={plan}
+              isPopular={plan.code === 'STANDARD'}
+              isCurrent={activePlan === plan.code}
+              busy={busy}
+              onBuy={buy}
             />
           ))}
         </div>
       </div>
 
-      <div className="w-full h-px bg-black/50 dark:bg-white/50" />
+      <div className="w-full h-px bg-black/50" />
 
       <div className="py-8 text-center px-4">
-        <p className="text-xs text-slate-400 dark:text-slate-600">
-          All plans include a{' '}
-          <span className="font-semibold text-slate-600 dark:text-slate-400">7-day free trial</span>
-          . No credit card required.
+        <p className="text-xs text-slate-400">
+          Secure checkout via Cashfree. Free users can build and preview resumes — payment unlocks watermark-free downloads.
         </p>
       </div>
     </section>
