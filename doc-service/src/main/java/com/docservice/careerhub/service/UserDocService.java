@@ -87,7 +87,7 @@ public class UserDocService {
         doc.setLatexCode(merged);
         doc.setPdfUrl(template.getPdfUrl());
         doc.setImageUrl(template.getImageUrl());
-        doc.setStatus(template.getPdfUrl() != null ? DocTemplateStatus.READY : DocTemplateStatus.PENDING);
+        doc.setStatus(DocTemplateStatus.READY);
         return userDocRepository.save(doc);
     }
 
