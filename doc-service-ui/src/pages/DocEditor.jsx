@@ -4,6 +4,7 @@ import Editor from '@monaco-editor/react';
 import toast from 'react-hot-toast';
 import docService from '../services/doc.service';
 import paymentService from '../services/payment.service';
+import ResumeUploadButton from '../components/profile/ResumeUploadButton';
 import PricingModal from '../components/payment/PricingModal';
 
 export default function DocEditor() {
@@ -166,7 +167,12 @@ export default function DocEditor() {
                     </button>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex items-center justify-end gap-1">
+                    <ResumeUploadButton
+                        label="Upload CV"
+                        confirm="Import a resume to update your saved profile details?"
+                        className="flex items-center gap-1 rounded px-1.5 py-1 text-xs text-slate-500 transition hover:bg-white/50 hover:text-slate-900 disabled:opacity-40"
+                    />
                     <button
                         onClick={handleDownload}
                         disabled={downloading || loadingDoc}
