@@ -36,17 +36,10 @@ const navItems = [
                 {
                     kind: 'cards',
                     items: [
-                        { icon: 'builder', title: 'Resume Builder', desc: 'Create a resume with live preview', to: '/resume-builder' },
-                        { icon: 'grid', title: 'Resume Templates', desc: 'Recruiter-approved designs', to: '/templates?type=CV_AND_RESUME' },
-                        { icon: 'folder', title: 'My Documents', desc: 'Resumes saved to your account', to: '/my-templates' },
-                    ],
-                },
-                {
-                    kind: 'links', heading: 'How it works',
-                    items: [
-                        { title: 'Pick a template', desc: 'Start from a polished design', to: '/templates?type=CV_AND_RESUME' },
-                        { title: 'Fill your details', desc: 'Auto-filled from your profile', to: '/resume-builder' },
-                        { title: 'Download as PDF', desc: 'Export an ATS-ready file', to: '/resume-builder' },
+                        { icon: 'grid', title: 'Resume Templates', desc: 'Recruiter-approved designs', to: '/templates?type=CV_AND_RESUME&page=1&size=10' },
+                        { icon: 'folder', title: 'Explore Doc Templates', desc: 'Browse every document design', to: '/templates?type=CV_AND_RESUME&page=1&size=10' },
+                        { icon: 'mail', title: 'My Templates', desc: 'Resumes saved to your account', to: '/my-templates?type=CV_AND_RESUME&page=1&size=10' },
+                        { icon: 'builder', title: 'Build your resume', desc: 'Create with live preview', to: '/templates?type=CV_AND_RESUME&page=1&size=20' },
                     ],
                 },
                 {
@@ -57,11 +50,10 @@ const navItems = [
                         { label: 'Marketing', to: '/templates?type=CV_AND_RESUME&keyword=Marketing' },
                         { label: 'Finance & Accounting', to: '/templates?type=CV_AND_RESUME&keyword=Finance' },
                         { label: 'Graduate / Entry level', to: '/templates?type=CV_AND_RESUME&keyword=Entry' },
-                        { label: 'Browse all', to: '/templates?type=CV_AND_RESUME' },
                     ],
                 },
             ],
-            promo: { title: 'Free, ATS-friendly resume builder', desc: 'Build and download in minutes — no account needed.', cta: 'Build your resume', to: '/resume-builder' },
+            promo: { title: 'Free, ATS-friendly resume builder', desc: 'Build and download in minutes — no account needed.', cta: 'Build your resume', to: '/templates?type=CV_AND_RESUME&page=1&size=20' },
         },
     },
     {
@@ -71,28 +63,13 @@ const navItems = [
                 {
                     kind: 'cards',
                     items: [
-                        { icon: 'mail', title: 'Cover Letter Templates', desc: 'Match your resume design', to: '/templates?type=COVER_LETTER' },
-                        { icon: 'grid', title: 'Browse all templates', desc: 'Every document type', to: '/templates' },
-                    ],
-                },
-                {
-                    kind: 'links', heading: 'Guides',
-                    items: [
-                        { title: 'Writing a cover letter', desc: 'A complete how-to', to: '/templates?type=COVER_LETTER' },
-                        { title: 'Formats & structure', desc: 'Pick the right format', to: '/templates?type=COVER_LETTER' },
-                    ],
-                },
-                {
-                    kind: 'list', heading: 'Examples',
-                    items: [
-                        { label: 'Software Engineer', to: '/templates?type=COVER_LETTER' },
-                        { label: 'Data Analyst', to: '/templates?type=COVER_LETTER' },
-                        { label: 'Designer', to: '/templates?type=COVER_LETTER' },
-                        { label: 'Manager', to: '/templates?type=COVER_LETTER' },
+                        { icon: 'mail', title: 'Cover Letter Templates', desc: 'Match your resume design', to: '/templates?type=COVER_LETTER&page=1&size=10' },
+                        { icon: 'grid', title: 'Keyword based', desc: 'Find by style, e.g. modern', to: '/templates?type=COVER_LETTER&page=1&size=10&keyword=modern' },
+                        { icon: 'folder', title: 'For all', desc: 'See every cover letter', to: '/templates?type=COVER_LETTER&page=1&size=20' },
                     ],
                 },
             ],
-            promo: { title: 'ATS-friendly cover letters', desc: 'Create a matching cover letter fast.', cta: 'Browse templates', to: '/templates?type=COVER_LETTER' },
+            promo: { title: 'ATS-friendly cover letters', desc: 'Create a matching cover letter fast.', cta: 'Browse templates', to: '/templates?type=COVER_LETTER&page=1&size=20' },
         },
     },
     { label: 'For Organizations', to: '/contact-us' },

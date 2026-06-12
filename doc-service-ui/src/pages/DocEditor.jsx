@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import toast from 'react-hot-toast';
 import docService from '../services/doc.service';
@@ -118,20 +118,20 @@ export default function DocEditor() {
     return (
         <div className="flex flex-col bg-slate-950 h-screen">
 
-            <div className="grid h-12 shrink-0 grid-cols-3 items-center border-b border-slate-200 bg-white px-4">
+            <div className="editor-header-bg grid h-12 shrink-0 grid-cols-3 items-center border-b border-slate-200 px-4">
 
                 <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="flex items-center gap-1 rounded px-1.5 py-1 text-xs text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                    <Link
+                        to="/templates?type=CV_AND_RESUME&page=1&size=10"
+                        className="flex items-center gap-1 rounded px-1.5 py-1 text-xs text-slate-600 transition hover:bg-white/50 hover:text-slate-900"
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                         </svg>
-                        Back
-                    </button>
-                    <div className="h-3.5 w-px bg-slate-200" />
-                    <span className="truncate text-xs font-medium text-slate-500">
+                        Templates
+                    </Link>
+                    <div className="h-3.5 w-px bg-slate-300" />
+                    <span className="truncate text-xs font-medium text-slate-600">
                         {loadingDoc ? 'Loading…' : (doc?.name ?? 'Document Editor')}
                     </span>
                 </div>
