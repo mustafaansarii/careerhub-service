@@ -230,10 +230,14 @@ function MegaPromo({ promo, onClose }) {
 
 function MegaPanel({ mega, onClose }) {
     return (
-        <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl shadow-slate-900/10 ring-1 ring-black/5">
+        <div className="mx-auto w-fit max-w-full overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl shadow-slate-900/10 ring-1 ring-black/5">
             <div className="flex flex-col gap-6 p-6 lg:flex-row">
-                <div className="grid flex-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {mega.columns.map((col, i) => <MegaColumn key={i} col={col} onClose={onClose} />)}
+                <div className="flex flex-col gap-x-6 gap-y-4 sm:flex-row">
+                    {mega.columns.map((col, i) => (
+                        <div key={i} className="w-full sm:w-60">
+                            <MegaColumn col={col} onClose={onClose} />
+                        </div>
+                    ))}
                 </div>
                 {mega.promo && <MegaPromo promo={mega.promo} onClose={onClose} />}
             </div>
