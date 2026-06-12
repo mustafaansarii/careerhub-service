@@ -9,10 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Cashfree payment integration (create order + verify), ported from the Flask payment service.
- * Configured via the same cashfree.* properties doc-service already exposes.
- */
+
 @Service
 public class PaymentService {
 

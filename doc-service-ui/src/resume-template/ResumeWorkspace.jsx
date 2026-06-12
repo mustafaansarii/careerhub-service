@@ -44,7 +44,15 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
     const [saving, setSaving] = useState(false);
     const [panel, setPanel] = useState(null);
     const [pricingOpen, setPricingOpen] = useState(false);
+    const [locked, setLocked] = useState(true);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!authed) { setLocked(true); return; }
+        paymentService.getEntitlement()
+            .then((e) => setLocked(!e?.active))
+            .catch(() => setLocked(true));
+    }, [authed]);
     const [settings, setSettings] = useState(() => ({
         margin: MARGIN, spacing: 24, fontSize: 14, lineHeight: 1.2, fontFamily: '', accent: design.accent || '#0f766e',
     }));
@@ -343,6 +351,21 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
                             )}
                         </div>
                     </div>
+
+                    {locked && (
+                        <div className="no-print absolute inset-x-0 bottom-0 z-30 overflow-hidden rounded-sm" style={{ top: PAGE / 3 }}>
+                            <div className="absolute inset-0 bg-white/55 backdrop-blur-md" />
+                            <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white via-white/80 to-transparent" />
+                            <div className="relative mx-auto mt-20 flex max-w-xs flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white px-6 py-7 text-center shadow-2xl">
+                                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-teal-50 text-teal-600">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16 10V7a4 4 0 00-8 0v3M6 10h12a1 1 0 011 1v8a1 1 0 01-1 1H6a1 1 0 01-1-1v-8a1 1 0 011-1z" /></svg>
+                                </span>
+                                <p className="text-base font-bold text-slate-900">Unlock your full resume</p>
+                                <p className="text-sm leading-relaxed text-slate-500">You're seeing a free preview. Upgrade to view every section and download a clean, watermark-free PDF.</p>
+                                <button onClick={() => setPricingOpen(true)} className="mt-1 rounded-full bg-teal-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-teal-400">See plans</button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -430,6 +453,13 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
                     </ul>
                 </div>
             )}
+
+            <PricingModal
+                open={pricingOpen}
+                onClose={() => setPricingOpen(false)}
+                onSuccess={() => { setPricingOpen(false); setLocked(false); window.print(); }}
+                title="Upgrade to download your resume"
+            />
         </div>
     );
 }

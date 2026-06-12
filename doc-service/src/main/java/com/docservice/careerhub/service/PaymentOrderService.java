@@ -19,11 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
-/**
- * Bridges the payment library to the user's account: records the order on creation, and on a
- * (signature-verified) webhook or return-verify, authoritatively re-fetches the order from Cashfree
- * and grants the entitlement exactly once. Granting is never driven by the browser.
- */
 @Service
 public class PaymentOrderService {
 
@@ -70,12 +65,15 @@ public class PaymentOrderService {
     @Transactional
     public VerifyResponse confirmAndGrant(String orderId) {
         VerifyResponse verification = paymentService.verifyOrder(orderId);
+        if (!isPaid(verification)) {
+            return verification;
+        }
+        int won = paymentOrderRepository.markPaid(orderId, PaymentOrderStatus.PAID, PaymentOrderStatus.CREATED);
+        if (won != 1) {
+            return verification;
+        }
         PaymentOrder order = paymentOrderRepository.findByOrderId(orderId).orElse(null);
-
-        boolean alreadyPaid = Objects.nonNull(order) && order.getStatus() == PaymentOrderStatus.PAID;
-        if (Objects.nonNull(order) && !alreadyPaid && isPaid(verification)) {
-            order.setStatus(PaymentOrderStatus.PAID);
-            paymentOrderRepository.save(order);
+        if (Objects.nonNull(order)) {
             entitlementService.grant(order.getOwnerEmail(), order.getPlan());
             log.info("Granted plan {} to {} for order {}", order.getPlan(), order.getOwnerEmail(), orderId);
         }

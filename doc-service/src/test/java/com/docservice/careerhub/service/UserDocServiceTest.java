@@ -56,8 +56,8 @@ class UserDocServiceTest {
         ReflectionTestUtils.setField(service, "watermarkService", watermarkService);
         when(resolver.forUser(anyString())).thenReturn(java.util.Map.of());
         when(mergeService.merge(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
-        when(entitlementService.isUnlocked(anyString(), any())).thenReturn(true);
-        when(watermarkService.addPreviewWatermark(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(entitlementService.hasActivePlan(anyString())).thenReturn(true);
+        when(watermarkService.buildPreview(any())).thenAnswer(inv -> inv.getArgument(0));
         when(userDocRepo.save(any(UserDoc.class))).thenAnswer(inv -> {
             UserDoc d = inv.getArgument(0);
             if (d.getId() == null) {

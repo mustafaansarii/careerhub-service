@@ -50,6 +50,14 @@ public class EntitlementService {
     }
 
     @Transactional(readOnly = true)
+    public boolean hasActivePlan(String ownerEmail) {
+        if (isAdmin()) {
+            return true;
+        }
+        return isActive(subscriptionRepository.findByOwnerEmail(ownerEmail).orElse(null));
+    }
+
+    @Transactional(readOnly = true)
     public boolean isUnlocked(String ownerEmail, Long docId) {
         if (isAdmin()) {
             return true;

@@ -19,6 +19,7 @@ export default function DocEditor() {
     const [compiling, setCompiling] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [pricingOpen, setPricingOpen] = useState(false);
+    const [locked, setLocked] = useState(true);
     const blobUrlRef = useRef(null);
     const handleCompileRef = useRef(null);
 
@@ -38,6 +39,12 @@ export default function DocEditor() {
         return () => {
             if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
         };
+    }, []);
+
+    useEffect(() => {
+        paymentService.getEntitlement()
+            .then((e) => setLocked(!e?.active))
+            .catch(() => setLocked(true));
     }, []);
 
     const editorContainerRef = useRef(null);
@@ -225,6 +232,19 @@ export default function DocEditor() {
                 </div>
 
                 <div className="flex w-1/2 flex-col bg-slate-800">
+                    {locked && pdfUrl && (
+                        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-amber-500/30 bg-amber-50 px-4 py-2">
+                            <p className="text-xs text-amber-800">
+                                <span className="font-semibold">Free preview</span> — only the top of page 1 is shown. Upgrade to view &amp; download the full resume.
+                            </p>
+                            <button
+                                onClick={() => setPricingOpen(true)}
+                                className="shrink-0 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white transition hover:bg-amber-400"
+                            >
+                                Upgrade
+                            </button>
+                        </div>
+                    )}
                     <div className="flex-1 overflow-hidden">
                         {pdfUrl ? (
                             <iframe
@@ -248,7 +268,7 @@ export default function DocEditor() {
             <PricingModal
                 open={pricingOpen}
                 onClose={() => setPricingOpen(false)}
-                onSuccess={() => { setPricingOpen(false); handleDownload(); }}
+                onSuccess={() => { setPricingOpen(false); setLocked(false); handleCompileRef.current?.(); }}
                 title="Upgrade to download this resume"
             />
         </div>

@@ -10,10 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Generic LLM gateway (Gemini). Sends a prompt (with optional system instruction / temperature)
- * and returns the model's text. Not tied to any feature — reuse it for any AI task.
- */
 @Service
 public class AiService {
 
@@ -25,7 +21,6 @@ public class AiService {
     @Value("${openai.modelName:gemini-flash-latest}")
     private String modelName;
 
-    /** Convenience overload for a plain prompt. */
     public String generate(String prompt) {
         return generate(new AiRequest(prompt, null, null));
     }

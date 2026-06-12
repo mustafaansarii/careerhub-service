@@ -78,7 +78,7 @@ public class UserDocService {
     public byte[] compileAndUpdate(String ownerEmail, Long id, String latexCode) {
         UserDoc doc = getOwned(ownerEmail, id);
         doc.setLatexCode(latexCode);
-        return renderAndStore(doc, ownerEmail);
+        return renderAndStore(doc, entitlementService.hasActivePlan(ownerEmail));
     }
 
     @Transactional
@@ -87,15 +87,13 @@ public class UserDocService {
         if (!entitlementService.unlock(ownerEmail, id)) {
             throw ApiException.paymentRequired("Upgrade your plan to download this resume");
         }
-        return renderAndStore(doc, ownerEmail);
+        return renderAndStore(doc, true);
     }
 
-    private byte[] renderAndStore(UserDoc doc, String ownerEmail) {
+    private byte[] renderAndStore(UserDoc doc, boolean full) {
         try {
             byte[] compiled = latexCompiler.compile(doc.getLatexCode());
-            byte[] output = entitlementService.isUnlocked(ownerEmail, doc.getId())
-                    ? compiled
-                    : watermarkService.addPreviewWatermark(compiled);
+            byte[] output = full ? compiled : watermarkService.buildPreview(compiled);
             String url = storageService.upload(output, "user-docs/" + doc.getId() + ".pdf", "application/pdf");
             doc.setPdfUrl(url);
             doc.setStatus(DocTemplateStatus.READY);
