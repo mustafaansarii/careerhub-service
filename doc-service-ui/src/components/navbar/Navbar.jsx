@@ -138,7 +138,7 @@ function DropdownNavItem({ item, isOpen, onOpen, onCloseSelf, onClose }) {
 
     const leave = () => {
         clearTimeout(closeTimer.current);
-        closeTimer.current = setTimeout(onCloseSelf, 220);
+        closeTimer.current = setTimeout(onCloseSelf, 2000);
     };
 
     return (
