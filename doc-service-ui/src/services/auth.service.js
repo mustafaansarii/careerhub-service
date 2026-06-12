@@ -9,7 +9,6 @@ const axiosInstance = axios.create({
     headers: { 'Content-Type': 'application/json' },
 });
 
-// Silent instance for the verifyAuth probe — no toast/redirect on 401.
 const silentAxios = axios.create({
     baseURL: API_URL,
     withCredentials: true,
@@ -31,19 +30,16 @@ axiosInstance.interceptors.response.use(
 );
 
 class AuthService {
-    /** Step 1 of signup — saves an unverified account and emails an OTP. */
     async signup(fullName, email, password) {
         const response = await axiosInstance.post('signup', { fullName, email, password });
         return response.data; // { message }
     }
 
-    /** Step 2 of signup — verifies the OTP and creates the verified user. */
     async register(fullName, email, password, otp) {
         const response = await axiosInstance.post('register', { fullName, email, password, otp });
         return response.data; // UserResponse
     }
 
-    /** Login — backend sets the httpOnly access-token cookie. */
     async signin(email, password) {
         const response = await axiosInstance.post('signin', { email, password });
         localStorage.setItem('isAuthenticated', 'true');
@@ -69,15 +65,10 @@ class AuthService {
         return localStorage.getItem('isAuthenticated') === 'true';
     }
 
-    /**
-     * Starts an OAuth login by navigating the browser (full page) to the backend authorization
-     * endpoint through the proxy, so the access-token cookie is set on this (:5173) origin.
-     */
     loginWithProvider(provider) {
         window.location.href = `/careerhub/oauth2/authorization/${provider}`;
     }
 
-    /** Silently confirm the session cookie is still valid (used on app load). */
     async verifyAuth() {
         try {
             await silentAxios.get('me');

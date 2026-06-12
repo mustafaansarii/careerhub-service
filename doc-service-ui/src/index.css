@@ -23,17 +23,58 @@ body {
 
 body {
   position: relative;
-  background-color: #f8fbff;
-  background-image:
-    radial-gradient(circle at 10% 10%, rgba(14, 165, 233, 0.20) 0%, transparent 48%),
-    radial-gradient(circle at 90% 20%, rgba(99, 102, 241, 0.18) 0%, transparent 52%),
-    radial-gradient(circle at 20% 100%, rgba(168, 85, 247, 0.14) 0%, transparent 58%),
-    linear-gradient(135deg, rgba(248, 250, 252, 1) 0%, rgba(241, 245, 255, 1) 100%);
-  background-attachment: fixed;
-  background-size: cover;
+  background-color: #f7faff;
+  background-image: linear-gradient(135deg, #f8fbff 0%, #f3f6ff 100%);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Flowing multi-color aurora — large blurred blobs that drift like they're moving with air.
+   Two fixed layers behind all content; subtle enough to keep cards/text readable. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  filter: blur(75px);
+  will-change: transform;
+}
+
+body::before {
+  background-image:
+    radial-gradient(38% 38% at 16% 26%, rgba(56, 189, 248, 0.70), transparent 72%),
+    radial-gradient(42% 42% at 84% 20%, rgba(167, 139, 250, 0.66), transparent 72%),
+    radial-gradient(48% 48% at 64% 84%, rgba(52, 211, 153, 0.64), transparent 72%);
+  animation: aurora-a 20s ease-in-out infinite alternate;
+}
+
+body::after {
+  background-image:
+    radial-gradient(40% 40% at 78% 62%, rgba(244, 114, 182, 0.60), transparent 72%),
+    radial-gradient(36% 36% at 26% 76%, rgba(45, 212, 191, 0.58), transparent 72%),
+    radial-gradient(42% 42% at 46% 10%, rgba(129, 140, 248, 0.56), transparent 72%);
+  animation: aurora-b 26s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-a {
+  0%   { transform: translate3d(-4%, -2%, 0) scale(1.05) rotate(0deg); }
+  50%  { transform: translate3d(3%, 5%, 0)  scale(1.15) rotate(8deg); }
+  100% { transform: translate3d(-2%, 3%, 0) scale(1.06) rotate(-7deg); }
+}
+
+@keyframes aurora-b {
+  0%   { transform: translate3d(3%, 2%, 0)  scale(1.08) rotate(0deg); }
+  50%  { transform: translate3d(-5%, -4%, 0) scale(1.0) rotate(-10deg); }
+  100% { transform: translate3d(2%, -3%, 0) scale(1.12) rotate(6deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after { animation: none; }
 }
 
 .font-display {

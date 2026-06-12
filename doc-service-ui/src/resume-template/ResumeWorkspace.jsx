@@ -8,12 +8,6 @@ import {
 } from './shared';
 import userService from '../services/user.service';
 
-/*
- * Form-builder engine. Holds the structured `resume` model (prefilled from the user's saved
- * profile), all behaviour (pagination, drag-reorder, add/remove, selection toolbar, print), and
- * on Download serializes the model back and PATCHes it (when signed in). Designs supply only the
- * visual slots: { code, name, sheetClass, renderHeader, renderTitle, renderItem, renderText }.
- */
 const ITEM_MARGIN = { exp: 'mb-4', edu: 'mb-3', courses: 'mb-1.5', pair: 'mb-1', simple: 'mb-1' };
 
 export default function ResumeWorkspace({ design, initialProfile = null, authed = false }) {
@@ -28,7 +22,6 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
     const sheetRef = useRef(null);
     const scheduleRef = useRef(() => {});
 
-    /* ── model setters ── */
     const setField = (key, value) => setResume((r) => ({ ...r, [key]: value }));
     const updateItem = (type, id, changes) => setResume((r) => ({ ...r, [type]: r[type].map((it) => (it.id === id ? { ...it, ...changes } : it)) }));
     const addItem = (type) => setResume((r) => ({ ...r, [type]: [...(r[type] || []), blankItem(META[type].kind)] }));
@@ -37,7 +30,6 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
     const addBullet = (type, id) => setResume((r) => ({ ...r, [type]: r[type].map((it) => (it.id === id ? { ...it, bullets: [...(it.bullets || []), blankItem('simple')] } : it)) }));
     const removeBullet = (type, id, bid) => setResume((r) => ({ ...r, [type]: r[type].map((it) => (it.id === id ? { ...it, bullets: it.bullets.filter((b) => b.id !== bid) } : it)) }));
 
-    /* ── section operations ── */
     const moveSection = (from, to) => {
         if (!from || from === to) return;
         setOrder((prev) => { const arr = prev.filter((t) => t !== from); const idx = to ? arr.indexOf(to) : arr.length; arr.splice(idx < 0 ? arr.length : idx, 0, from); return arr; });
@@ -49,7 +41,6 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
         setAdding(false);
     };
 
-    /* ── pagination ── */
     useEffect(() => {
         const sheet = sheetRef.current;
         if (!sheet) return;
@@ -83,7 +74,6 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
 
     useEffect(() => { scheduleRef.current(); }, [order, resume, design]);
 
-    /* ── selection format toolbar ── */
     useEffect(() => {
         const onSelect = () => {
             const sel = window.getSelection();
@@ -113,7 +103,6 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
         sheetRef.current?.querySelectorAll('a:not([target])').forEach((a) => { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
     };
 
-    /* ── download: save details (if signed in) then print ── */
     const download = async () => {
         if (authed) {
             setSaving(true);
@@ -124,7 +113,6 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
         window.print();
     };
 
-    /* ── render one section body via the design slots ── */
     const renderBody = (type) => {
         const meta = META[type];
         if (meta.kind === 'text') {

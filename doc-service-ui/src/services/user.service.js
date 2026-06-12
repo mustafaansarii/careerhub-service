@@ -16,7 +16,6 @@ class UserService {
     return response.data;
   }
 
-  /** Persist the user's structured resume/profile details (free-form JSON). Returns updated UserResponse. */
   async updateProfile(profileData) {
     const response = await axiosInstance.patch('/careerhub/api/auth/profile', profileData, { baseURL: '' });
     return response.data;

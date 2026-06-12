@@ -55,11 +55,16 @@ const REVIEWS = [
 ];
 
 const FAQS = [
-    { q: 'Is NextCV free to use?', a: 'Yes — you can create an account, build documents, and download PDFs for free. Premium templates and advanced features are available on paid plans.' },
-    { q: 'Are the resumes ATS-friendly?', a: 'Every template uses clean, parsable layouts with standard section titles and readable fonts, so applicant tracking systems can read them without losing content.' },
-    { q: 'Can I edit my document after downloading?', a: 'Absolutely. Documents are saved to your account, so you can come back anytime, tweak the content, recompile, and download an updated PDF.' },
-    { q: 'How do I sign in?', a: 'Use your email and password, or continue with Google or GitHub — if you do not have an account yet, one is created automatically on your first social login.' },
-    { q: 'What document types are supported?', a: 'Resumes/CVs, cover letters, reports, theses, letters, and more — pick a category and start from a professionally designed template.' },
+    { q: 'Is NextCV free to use?', a: 'Yes. You can build a resume, fill in your details, and download a PDF for free — no payment required to get a finished, recruiter-ready document.' },
+    { q: 'Do I need an account to build a resume?', a: 'No. You can open the resume builder and download a PDF without signing in. Creating an account simply lets us save your details and reuse them next time.' },
+    { q: 'What is the difference between the form editor and the LaTeX editor?', a: 'The form editor is the default — you fill in structured fields and see a live preview, no coding needed. The LaTeX editor is for advanced users who want to tweak the raw LaTeX of the same template. Use the ⋯ menu on any template to switch.' },
+    { q: 'Are NextCV resumes ATS-friendly?', a: 'Yes. Every template uses clean, single-column-friendly layouts with standard section headings and readable fonts, so applicant tracking systems can parse your name, experience, and skills without dropping content.' },
+    { q: 'How do I download my resume as a PDF?', a: 'Click “Download PDF” in the builder. It produces a crisp, multi-page US-Letter PDF with proper margins — page breaks fall between sections so nothing gets cut in half.' },
+    { q: 'Can I edit my resume after I have started?', a: 'Of course. Edit any field inline, drag headings to reorder sections, add or remove sections, and re-download anytime. If you are signed in, your edits are saved back to your account on download.' },
+    { q: 'Will my saved details pre-fill the builder?', a: 'Yes. Once you add your details under Profile → Resume details, every template you open is automatically pre-filled with your information. If you have not added anything yet, the form shows example content you can replace.' },
+    { q: 'Can I switch templates without re-typing everything?', a: 'Yes. Your information lives in one place and flows into whichever template you pick, so changing the design never means re-entering your experience, education, or skills.' },
+    { q: 'How do I sign in or create an account?', a: 'Use your email and password, or continue with Google or GitHub. If you sign in with a social account for the first time, an account is created for you automatically.' },
+    { q: 'Can I add sections like Projects, Certifications, or Awards?', a: 'Yes. Use “Add section” at the bottom of the builder to add Projects, Certifications, Achievements, Awards, Languages, Volunteering, Publications, and more — then reorder them by dragging the headings.' }
 ];
 
 function FaqItem({ item, isOpen, onToggle }) {
@@ -132,7 +137,7 @@ function Stars({ count = 5 }) {
 
 export default function HomeSections() {
     return (
-        <div className="bg-white text-slate-900 dark:bg-slate-950 dark:text-white">
+        <div className="text-slate-900">
             {/* Trust bar */}
             <section className="border-b border-black/10 dark:border-white/10">
                 <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -186,7 +191,7 @@ export default function HomeSections() {
             </section>
 
             {/* Features */}
-            <section className="border-y border-black/10 bg-slate-50 dark:border-white/10 dark:bg-white/5">
+            <section className="border-y border-black/10 dark:border-white/10">
                 <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-2xl text-center">
                         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Everything you need to get hired</h2>

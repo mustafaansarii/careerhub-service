@@ -1,10 +1,5 @@
 import { Field, PeriodField } from '../shared';
 
-/*
- * Template "classic" — serif, centered header, full-width section rules.
- * Visual slots only; the model + behaviour come from ResumeWorkspace.
- */
-
 function Bullets({ bullets }) {
     return (
         <ul className="mt-1 list-disc pl-5 text-slate-700">

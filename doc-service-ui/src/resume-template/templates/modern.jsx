@@ -1,10 +1,5 @@
 import { Field, PeriodField } from '../shared';
 
-/*
- * Template "modern" — left-aligned, sans-serif, teal accent headings with an underline rule.
- * Mirrors latex-templates/2.template.tex; consumes the same resume model.
- */
-
 function Bullets({ bullets }) {
     return (
         <ul className="mt-1 list-disc pl-5 text-slate-600">

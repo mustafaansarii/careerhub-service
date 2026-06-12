@@ -135,8 +135,8 @@ export default function AuthLayout({ badge, title, description, features = [], b
                     </div>
                 </header>
 
-                {/* Form — fills remaining height */}
-                <div className="flex flex-1 items-center justify-center bg-white dark:bg-neutral-950 px-6 py-12">
+                {/* Form — sits directly on the flowing aurora background (no panel) */}
+                <div className="flex flex-1 items-center justify-center px-6 py-12">
                     {children}
                 </div>
             </div>

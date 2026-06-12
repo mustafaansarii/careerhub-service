@@ -1,5 +1,4 @@
-// Example resume used to pre-fill the form when the user has no saved details — kept in sync with
-// the backend's sample-resume.json so the form and the LaTeX side show the same example.
+
 const SAMPLE_RESUME = {
     name: 'Willim Lucas',
     title: 'Software Engineer',
