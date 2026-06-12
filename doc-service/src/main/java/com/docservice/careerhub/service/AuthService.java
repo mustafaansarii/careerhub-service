@@ -95,11 +95,6 @@ public class AuthService {
         return new LoginResult(user, token);
     }
 
-    /**
-     * Logs a user in via an OAuth provider (Google/GitHub). If no account exists for the email, one
-     * is created on the spot (verified, no password, default role). Existing accounts are linked and
-     * logged in regardless of how they were originally created. Then a normal session + JWT is issued.
-     */
     @Transactional
     public LoginResult loginWithOAuth(String email, String fullName, String provider, DeviceMetadata device) {
         AuthUser user = authUserRepository.findByEmail(email).orElseGet(() -> new AuthUser());
@@ -107,10 +102,10 @@ public class AuthService {
         if (isNew) {
             user.setEmail(email);
             user.setFullName(Objects.requireNonNullElse(fullName, email));
-            // DB requires a password column; OAuth-only accounts get an unusable random secret.
+
             user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
         }
-        user.setVerified(true);          // provider has verified the email
+        user.setVerified(true);
         user.setProvider(provider);
         AuthUser saved = authUserRepository.save(user);
 
@@ -127,11 +122,6 @@ public class AuthService {
         }
     }
 
-    /**
-     * Confirms the session still exists and has not lapsed, then slides its expiry forward. Returns
-     * false (deleting a lapsed row) when the session is gone or expired. Sliding the window on every
-     * request is what keeps an active user logged in until they explicitly log out.
-     */
     @Transactional
     public boolean validateAndTouchSession(String tokenId) {
         if (Objects.isNull(tokenId)) {
@@ -162,8 +152,6 @@ public class AuthService {
         user.setProfileData(profileJson);
         return authUserRepository.save(user);
     }
-
-    // ── private helpers ─────────────────────────────────────────────────
 
     private AuthUser authenticate(SigninRequest request) {
         AuthUser user = authUserRepository.findByEmail(request.getEmail())

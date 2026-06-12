@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-/* Light mode only: make `dark:` utilities apply ONLY under an explicit `.dark` class (which we
-   never add), so the OS dark-mode setting can't flip the app to a dark theme. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -30,8 +28,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Flowing multi-color aurora — large blurred blobs that drift like they're moving with air.
-   Two fixed layers behind all content; subtle enough to keep cards/text readable. */
 body::before,
 body::after {
   content: "";
@@ -103,14 +99,13 @@ body::after {
 
 @media (max-width: 640px) {
   .home-page-hero-bg {
-    /* Keep hero height content-driven (no forced min-height). */
+
     background-size: 100% 100%;
     background-position: center top;
     min-height: 0;
   }
 }
 
-/* Ray / beam decorative background (used by some layouts). */
 .ray-bg {
   position: absolute;
   inset: 0;
@@ -144,14 +139,12 @@ body::after {
   );
 }
 
-/* Clean card style */
 .card-light {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.07);
 }
 
-/* Soft card for forms */
 .form-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;

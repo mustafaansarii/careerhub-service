@@ -17,11 +17,6 @@ import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Stores the in-flight OAuth2 authorization request in a short-lived cookie instead of the HTTP
- * session, so the OAuth2 login dance works under a STATELESS session policy (no JSESSIONID, scales
- * horizontally). The request object is Java-serialized and Base64-encoded into the cookie.
- */
 @Component
 public class CookieAuthorizationRequestRepository
         implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {

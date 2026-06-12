@@ -17,7 +17,7 @@ const Doc_templates_images = [
     "https://i.ibb.co/7HgSdbL/William-Lucas.jpg",
 ];
 
-const title_desc= { 
+const title_desc= {
 
 }
 
@@ -58,28 +58,24 @@ const docTemplateFrames = [
     },
 ];
 
-
 export default function Hero() {
     return (
         <>
 
-
             <div className="mx-4 sm:mx-auto max-w-7xl sm:border-l sm:border-r border-white pb-12">
-                {/* ── Ray / beam hero background ─────────────────────────── */}
+
                 <div className="absolute inset-0 -z-10" />
 
-                {/* ── Hero section ─────────────────────────────────────────── */}
                 <section className="mx-auto max-w-7xl px-0 sm:px-6 lg:px-8 pt-12  sm:pt-16 lg:pt-20">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
 
-                    {/* Left: copy */}
                     <MotionDiv
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                         className="space-y-5 sm:space-y-6"
                     >
-                        {/* Pill badge */}
+
                         <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-700">
                             <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal-500" />
                             ATS Check · AI Writer · One-Click Tailoring
@@ -94,7 +90,6 @@ export default function Hero() {
                             ATS Check, AI Writer, and One-Click Job Tailoring make your resume stand out to recruiters.
                         </p>
 
-                        {/* Social proof */}
                         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                             <div className="flex -space-x-2.5">
                                 {userAvatars.map((avatar, index) => (
@@ -114,7 +109,6 @@ export default function Hero() {
                             </div>
                         </div>
 
-                        {/* CTA buttons */}
                         <div className="flex items-center gap-1">
                             {heroCtas.map((cta) => {
                                 const className =
@@ -136,7 +130,6 @@ export default function Hero() {
                         </div>
                     </MotionDiv>
 
-                    {/* Mobile: template scroller */}
                     <MotionDiv
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -155,7 +148,6 @@ export default function Hero() {
                         </div>
                     </MotionDiv>
 
-                    {/* Right: stacked resume images (desktop) */}
                     <MotionDiv
                         initial={{ opacity: 0, x: 40 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -173,7 +165,7 @@ export default function Hero() {
                                     transition={{ duration: 0.5, delay: pos.delay }}
                                     className={`absolute ${pos.bottom} ${pos.left} w-full h-full flex items-center justify-center`}
                                 >
-                                    {/* Small framed container so the whole image stays visible (object-contain). */}
+
                                     <div
                                         className={`w-[94%] h-[94%] rounded-2xl overflow-hidden ${pos.frameClass}`}
                                     >

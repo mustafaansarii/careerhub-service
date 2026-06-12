@@ -12,7 +12,7 @@ const buttonClass =
 
 export default function SignupForm() {
     const navigate = useNavigate();
-    const [step, setStep] = useState('details'); // 'details' | 'otp'
+    const [step, setStep] = useState('details');
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

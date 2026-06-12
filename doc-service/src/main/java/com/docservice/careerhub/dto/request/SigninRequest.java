@@ -14,5 +14,5 @@ public class SigninRequest {
 
     @NotBlank(message = "Password is required")
     private String password;
-    
+
 }

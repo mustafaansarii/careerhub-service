@@ -5,12 +5,11 @@ import docService from '../../services/doc.service';
 import authService from '../../services/auth.service';
 import { DEFAULT_CODE } from '../../resume-template/registry';
 
-/* Maps a backend template to a frontend form-design code. Until the backend stores a templateCode,
-   everything opens the default design; refine here (or via doc.templateCode) as designs are added. */
 const designCodeFor = (doc) => doc?.templateCode || DEFAULT_CODE;
 
 const CATEGORIES = [
     { key: 'CV_AND_RESUME', label: 'CV & Resume' },
+    { key: 'COVER_LETTER', label: 'Cover Letter' },
     { key: 'JOURNAL_ARTICLES', label: 'Journal Articles' },
     { key: 'BIBLIOGRAPHIES', label: 'Bibliographies' },
     { key: 'BOOKS', label: 'Books' },
@@ -173,17 +172,13 @@ function Pagination({ page, totalPages, pageSize, onPageChange, onPageSizeChange
     );
 }
 
-/**
- * Shared template grid. mode="templates" → public browse (saves a copy to the account on open);
- * mode="user-docs" → the user's saved docs (opens directly in the editor).
- */
 export default function Templates({ mode = 'templates' }) {
     const isUserDocs = mode === 'user-docs';
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
 
     const activeCategory = searchParams.get('type') || CATEGORIES[0].key;
-    const page = Number(searchParams.get('page')) || 1;        // 1-based in the URL for UX
+    const page = Number(searchParams.get('page')) || 1;
     const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
     const keyword = searchParams.get('keyword') || '';
 
@@ -196,12 +191,12 @@ export default function Templates({ mode = 'templates' }) {
     const [busyId, setBusyId] = useState(null);
 
     const handleAction = async (doc, action = 'form') => {
-        // Default: open the form-based builder for this template's design (public, no account).
+
         if (action === 'form') {
             navigate(`/resume-builder/${designCodeFor(doc)}`);
             return;
         }
-        // "Edit with LaTeX editor": save to account (if browsing) and open the Monaco editor.
+
         if (busyId) return;
         setBusyId(doc.id);
         try {
@@ -227,7 +222,7 @@ export default function Templates({ mode = 'templates' }) {
         if (!searchParams.has('type')) {
             setSearchParams({ type: CATEGORIES[0].key, page: 1, size: DEFAULT_PAGE_SIZE }, { replace: true });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, []);
 
     useEffect(() => { setInputValue(keyword); }, [keyword]);

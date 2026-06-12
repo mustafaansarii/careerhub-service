@@ -9,10 +9,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Base for DtoApi classes: provides Bean-Validation of request forms.
- * Subclasses call {@link #validate(Object)} before delegating to a service.
- */
 public abstract class AbstractDtoUtil {
 
     private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();

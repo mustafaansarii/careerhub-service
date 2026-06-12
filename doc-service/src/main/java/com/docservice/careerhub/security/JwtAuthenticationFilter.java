@@ -17,15 +17,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Authenticates a request from the access-token cookie (or Bearer header).
- *
- * <p>The access token is short-lived; the server-side session is the source of truth. On every
- * request the session is validated and its expiry slid forward. If the token has expired but the
- * session is still alive, a fresh access token is minted and set on the response cookie silently —
- * so an active user is never logged out. Only an explicit /logout (which deletes the session), or
- * total inactivity past the session window, ends the login.
- */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -59,7 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
-    /** Mints a new access token from the still-valid session and writes it back as the cookie. */
     private void reissueAccessToken(HttpServletResponse response, JwtService.TokenInspection inspection) {
         String refreshed = jwtService.generate(inspection.email(), inspection.tokenId(), inspection.roles());
         response.addHeader(HttpHeaders.SET_COOKIE, authCookies.access(refreshed).toString());

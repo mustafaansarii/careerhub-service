@@ -39,7 +39,6 @@ class DocTemplateServiceTest {
         ReflectionTestUtils.setField(service, "latexCompiler", compiler);
         ReflectionTestUtils.setField(service, "storageService", storage);
 
-        // assign an incrementing id on first save (PENDING insert), echo back on later saves
         AtomicLong ids = new AtomicLong(0);
         when(repo.save(any(DocTemplate.class))).thenAnswer(inv -> {
             DocTemplate t = inv.getArgument(0);
@@ -71,7 +70,7 @@ class DocTemplateServiceTest {
         assertThat(template.getStatus()).isEqualTo(DocTemplateStatus.READY);
         assertThat(template.getPdfUrl()).isEqualTo("https://store/doc-templates/1.pdf");
         assertThat(template.getErrorMessage()).isNull();
-        // uploaded under the persisted id's path
+
         verify(storage).upload(any(), eq("doc-templates/1.pdf"), eq("application/pdf"));
     }
 
@@ -91,8 +90,8 @@ class DocTemplateServiceTest {
     @Test
     void createIsolatesFailuresAcrossBatch() {
         when(compiler.compile(anyString()))
-                .thenReturn(new byte[]{1})                              // first ok
-                .thenThrow(ApiException.badData("boom"));               // second fails
+                .thenReturn(new byte[]{1})
+                .thenThrow(ApiException.badData("boom"));
         when(storage.upload(any(), anyString(), anyString())).thenReturn("https://store/x.pdf");
 
         List<DocTemplate> result = service.createAll(List.of(request("ok"), request("bad")));

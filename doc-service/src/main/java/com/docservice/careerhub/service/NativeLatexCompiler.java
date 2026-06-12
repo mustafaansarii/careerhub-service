@@ -16,7 +16,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-
 @Service
 @ConditionalOnProperty(name = "latex.compiler", havingValue = "native")
 public class NativeLatexCompiler implements LatexCompiler {
@@ -36,7 +35,6 @@ public class NativeLatexCompiler implements LatexCompiler {
             Path texFile = workDir.resolve(TEX_FILE);
             Files.writeString(texFile, latexCode, StandardCharsets.UTF_8);
 
-            // Run pdflatex twice so cross-references (ToC, labels) are resolved.
             runPdflatex(workDir);
             runPdflatex(workDir);
 

@@ -60,7 +60,6 @@ public class AuthDtoApi extends AbstractDtoUtil {
         return toUserResponse(authService.getActiveUser(authentication.getName()));
     }
 
-    /** Persists the caller's structured resume/profile details (free-form JSON object). */
     public UserResponse updateProfile(Authentication authentication, Map<String, Object> profile) {
         String json;
         try {
@@ -71,15 +70,13 @@ public class AuthDtoApi extends AbstractDtoUtil {
         return toUserResponse(authService.updateProfile(authentication.getName(), json));
     }
 
-    // ── private helpers ─────────────────────────────────────────────────
-
     private UserResponse toUserResponse(AuthUser user) {
         Object profile = null;
         if (user.getProfileData() != null && !user.getProfileData().isBlank()) {
             try {
                 profile = objectMapper.readValue(user.getProfileData(), Object.class);
             } catch (Exception ignored) {
-                // stored value isn't valid JSON — return null rather than failing the request
+
             }
         }
         return UserResponse.builder()

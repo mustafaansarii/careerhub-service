@@ -8,7 +8,7 @@ const messages = [
   'Mock interview slots are live',
 ];
 
-const AUTO_CLOSE_MS = 60000; // auto-dismiss after 1 minute
+const AUTO_CLOSE_MS = 60000;
 
 export default function Notifications() {
   const [visible, setVisible] = useState(true);

@@ -22,5 +22,5 @@ public class SignupRequest {
 
     @Pattern(regexp = "\\d{6}", message = "OTP must be a 6-digit code")
     private String otp;
-    
+
 }

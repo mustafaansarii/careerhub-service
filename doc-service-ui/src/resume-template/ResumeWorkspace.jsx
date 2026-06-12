@@ -10,6 +10,27 @@ import userService from '../services/user.service';
 
 const ITEM_MARGIN = { exp: 'mb-4', edu: 'mb-3', courses: 'mb-1.5', pair: 'mb-1', simple: 'mb-1' };
 
+const FONT_OPTIONS = [
+    { label: 'Template default', value: '' },
+    { label: 'Serif (Georgia)', value: 'Georgia, "Times New Roman", serif' },
+    { label: 'Sans (Inter)', value: 'Inter, ui-sans-serif, system-ui, sans-serif' },
+    { label: 'Slab serif', value: '"Roboto Slab", Georgia, serif' },
+    { label: 'Monospace', value: 'ui-monospace, "SF Mono", Menlo, monospace' },
+];
+const ACCENTS = ['#0f172a', '#0f766e', '#2563eb', '#7c3aed', '#dc2626', '#ea580c', '#db2777', '#0891b2'];
+
+function atsChecks(r) {
+    return [
+        { label: 'Name and contact details', ok: !!r.name && (!!r.email || !!r.phone) },
+        { label: 'Professional summary', ok: !!(r.summary && r.summary.trim()) },
+        { label: 'At least one experience entry', ok: (r.experience || []).some((e) => e.primary || e.secondary) },
+        { label: 'Experience has bullet points', ok: (r.experience || []).some((e) => (e.bullets || []).some((b) => b.text && b.text.trim())) },
+        { label: 'Quantified results (numbers in bullets)', ok: (r.experience || []).some((e) => (e.bullets || []).some((b) => /\d/.test(b.text || ''))) },
+        { label: 'Skills listed', ok: (r.skills || []).some((s) => s.value || s.label) },
+        { label: 'Education added', ok: (r.education || []).some((e) => e.school || e.degree) },
+    ];
+}
+
 export default function ResumeWorkspace({ design, initialProfile = null, authed = false }) {
     const [resume, setResume] = useState(() => profileToResume(initialProfile));
     const [order, setOrder] = useState(() => resume._order || ['summary', 'experience', 'skills', 'courses', 'education']);
@@ -19,8 +40,15 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
     const [toolbar, setToolbar] = useState(null);
     const [adding, setAdding] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [panel, setPanel] = useState(null);
+    const [settings, setSettings] = useState(() => ({
+        margin: MARGIN, spacing: 24, fontSize: 15, lineHeight: 1.5, fontFamily: '', accent: design.accent || '#0f766e',
+    }));
+    const setSetting = (k, v) => setSettings((s) => ({ ...s, [k]: v }));
     const sheetRef = useRef(null);
     const scheduleRef = useRef(() => {});
+    const settingsRef = useRef(settings);
+    useEffect(() => { settingsRef.current = settings; }, [settings]);
 
     const setField = (key, value) => setResume((r) => ({ ...r, [key]: value }));
     const updateItem = (type, id, changes) => setResume((r) => ({ ...r, [type]: r[type].map((it) => (it.id === id ? { ...it, ...changes } : it)) }));
@@ -51,12 +79,13 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
             blocks.forEach((b) => { b.style.marginTop = ''; });
             const sheetTop = sheet.getBoundingClientRect().top;
             const data = blocks.map((b) => { const r = b.getBoundingClientRect(); return { el: b, top: r.top - sheetTop, h: r.height }; });
-            const usable = PAGE - 2 * MARGIN;
+            const M = settingsRef.current.margin;
+            const usable = PAGE - 2 * M;
             let page = 0, push = 0;
             for (const d of data) {
                 const curTop = d.top + push;
-                const pageBottom = page * STRIDE + (PAGE - MARGIN);
-                if (d.h <= usable && curTop + d.h > pageBottom + 1) { page += 1; const delta = page * STRIDE + MARGIN - curTop; d.el.style.marginTop = `${delta}px`; push += delta; }
+                const pageBottom = page * STRIDE + (PAGE - M);
+                if (d.h <= usable && curTop + d.h > pageBottom + 1) { page += 1; const delta = page * STRIDE + M - curTop; d.el.style.marginTop = `${delta}px`; push += delta; }
             }
             setPageCount(page + 1);
         };
@@ -72,7 +101,7 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
         return () => { cancelAnimationFrame(raf); if (ro) ro.disconnect(); sheet.removeEventListener('input', schedule); window.removeEventListener('beforeprint', clearPushes); window.removeEventListener('afterprint', schedule); };
     }, [design]);
 
-    useEffect(() => { scheduleRef.current(); }, [order, resume, design]);
+    useEffect(() => { scheduleRef.current(); }, [order, resume, design, settings]);
 
     useEffect(() => {
         const onSelect = () => {
@@ -107,7 +136,7 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
         if (authed) {
             setSaving(true);
             try { await userService.updateProfile(resumeToProfile(resume)); }
-            catch { /* keep going to print even if save fails */ }
+            catch {}
             finally { setSaving(false); }
         }
         window.print();
@@ -146,6 +175,8 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
 
     const available = SECTION_CATALOG.filter((s) => !order.includes(s.type));
     const stackHeight = pageCount * PAGE + (pageCount - 1) * GAP;
+    const checks = atsChecks(resume);
+    const passed = checks.filter((c) => c.ok).length;
 
     return (
         <div id="rb-root" className="min-h-screen bg-slate-200/70">
@@ -162,7 +193,7 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
           #rb-root { background: #fff !important; min-height: 0 !important; }
           #rb-canvas { padding: 0 !important; display: block !important; }
           #rb-stack { position: static !important; width: auto !important; height: auto !important; }
-          #resume-sheet { position: static !important; box-shadow: none !important; margin: 0 !important; width: 8.5in !important; max-width: none !important; padding: 0.5in !important; font-size: 10.5pt !important; }
+          #resume-sheet { position: static !important; box-shadow: none !important; margin: 0 auto !important; width: 8.5in !important; max-width: none !important; }
           #resume-sheet [data-block] { break-inside: avoid; margin-top: 0 !important; }
           .editable:hover, .editable:focus { box-shadow: none !important; }
           .editable:empty::before { content: "" !important; }
@@ -171,7 +202,6 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
         }
       `}</style>
 
-            {/* Toolbar */}
             <div className="no-print sticky top-0 z-20 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4 shadow-sm sm:px-6">
                 <div className="flex items-center gap-3">
                     <Link to="/" className="flex items-center gap-2 text-slate-500 transition hover:text-slate-900">
@@ -181,16 +211,24 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
                     <span className="hidden text-sm font-semibold text-slate-800 sm:inline">Resume Builder</span>
                     {design?.name && <span className="hidden rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700 sm:inline">{design.name}</span>}
                 </div>
-                <div className="flex items-center gap-3">
-                    <span className="hidden text-xs text-slate-400 md:inline">{authed ? 'Your details are pre-filled · edits save on download' : 'Click to edit · no account needed'}</span>
-                    <button onClick={download} disabled={saving} className="inline-flex items-center gap-1.5 rounded-full bg-teal-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-400 disabled:opacity-60">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" /></svg>
-                        {saving ? 'Saving…' : 'Download PDF'}
+                <div className="flex items-center gap-1.5">
+                    <button
+                        onClick={() => setPanel(panel === 'ats' ? null : 'ats')}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition ${panel === 'ats' ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-100'}`}
+                    >
+                        <span className="flex h-4 w-4 items-center justify-center rounded-sm border border-current text-[8px] font-bold">ATS</span>
+                        Check
+                    </button>
+                    <button
+                        onClick={() => setPanel(panel === 'design' ? null : 'design')}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition ${panel === 'design' ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-100'}`}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4"><circle cx="12" cy="12" r="9" /><path strokeLinecap="round" d="M12 3a9 9 0 000 18" fill="currentColor" stroke="none" opacity="0.5" /></svg>
+                        Design &amp; Font
                     </button>
                 </div>
             </div>
 
-            {/* Format toolbar */}
             {toolbar && (
                 <div className="no-print fixed z-[100000] flex -translate-x-1/2 gap-0.5 rounded-lg bg-slate-900 px-1 py-1 shadow-lg" style={{ top: toolbar.top, left: toolbar.left }} onMouseDown={(e) => e.preventDefault()}>
                     <button onClick={() => format('bold')} title="Bold" className="h-7 w-7 rounded text-sm font-bold text-white transition hover:bg-white/15">B</button>
@@ -203,14 +241,24 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
                 </div>
             )}
 
-            {/* Page stack */}
             <div id="rb-canvas" className="flex justify-center px-4 py-8">
                 <div id="rb-stack" className="relative max-w-full" style={{ width: PAGE_W, height: stackHeight }}>
                     {Array.from({ length: pageCount }).map((_, p) => (
                         <div key={p} className="no-print absolute inset-x-0 rounded-sm bg-white shadow-xl" style={{ top: p * STRIDE, height: PAGE }} />
                     ))}
 
-                    <div id="resume-sheet" ref={sheetRef} className={`relative z-10 ${design.sheetClass}`} style={{ padding: MARGIN }}>
+                    <div
+                        id="resume-sheet"
+                        ref={sheetRef}
+                        className={`relative z-10 ${design.sheetClass}`}
+                        style={{
+                            padding: settings.margin,
+                            fontSize: `${settings.fontSize}px`,
+                            lineHeight: settings.lineHeight,
+                            fontFamily: settings.fontFamily || undefined,
+                            '--rb-accent': settings.accent,
+                        }}
+                    >
                         <header data-block>{design.renderHeader(resume, setField)}</header>
 
                         {order.map((type) => (
@@ -228,7 +276,8 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
                                     onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', type); setDragType(type); }}
                                     onDragEnd={() => { setDragType(null); setOverType(null); }}
                                     title="Drag this heading to move the whole section"
-                                    className="relative mt-6 cursor-grab select-none rounded-md transition active:cursor-grabbing group-hover/sec:bg-teal-50/40"
+                                    style={{ marginTop: settings.spacing }}
+                                    className="relative cursor-grab select-none rounded-md transition active:cursor-grabbing group-hover/sec:bg-teal-50/40"
                                 >
                                     <span className="no-print absolute left-1 top-1 z-10 text-slate-300 opacity-0 transition group-hover/sec:opacity-100">
                                         <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><circle cx="9" cy="6" r="1.4" /><circle cx="15" cy="6" r="1.4" /><circle cx="9" cy="12" r="1.4" /><circle cx="15" cy="12" r="1.4" /><circle cx="9" cy="18" r="1.4" /><circle cx="15" cy="18" r="1.4" /></svg>
@@ -272,6 +321,119 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
                     </div>
                 </div>
             </div>
+
+            {/* Floating download icon to the right of the sheet */}
+            <div className={`no-print fixed right-5 top-24 z-30 flex-col gap-2 ${panel === 'ats' ? 'hidden' : 'flex'}`}>
+                <button
+                    onClick={download}
+                    disabled={saving}
+                    title="Download PDF"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-teal-500 text-white shadow-lg shadow-teal-900/20 transition hover:bg-teal-400 disabled:opacity-60"
+                >
+                    {saving ? (
+                        <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" d="M12 3a9 9 0 109 9" /></svg>
+                    ) : (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" /></svg>
+                    )}
+                </button>
+            </div>
+
+            {/* Design & Font panel */}
+            {panel === 'design' && (
+                <div className="no-print fixed left-0 top-14 bottom-0 z-40 w-72 overflow-y-auto border-r border-slate-200 bg-white p-5 shadow-2xl">
+                    <div className="mb-5 flex items-center justify-between">
+                        <h3 className="text-sm font-bold text-slate-800">Design &amp; Font</h3>
+                        <button onClick={() => setPanel(null)} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+
+                    <Control label="Page margins" hint={`${settings.margin}px`}>
+                        <input type="range" min="24" max="80" value={settings.margin} onChange={(e) => setSetting('margin', Number(e.target.value))} className="w-full accent-teal-500" />
+                        <div className="mt-0.5 flex justify-between text-[10px] text-slate-400"><span>narrow</span><span>wide</span></div>
+                    </Control>
+
+                    <Control label="Section spacing" hint={`${settings.spacing}px`}>
+                        <input type="range" min="8" max="48" value={settings.spacing} onChange={(e) => setSetting('spacing', Number(e.target.value))} className="w-full accent-teal-500" />
+                        <div className="mt-0.5 flex justify-between text-[10px] text-slate-400"><span>compact</span><span>more space</span></div>
+                    </Control>
+
+                    <Control label="Colors">
+                        <div className="flex flex-wrap gap-2">
+                            {ACCENTS.map((c) => (
+                                <button key={c} onClick={() => setSetting('accent', c)} title={c}
+                                    className={`h-7 w-7 rounded-full ring-2 ring-offset-2 transition ${settings.accent === c ? 'ring-slate-800' : 'ring-transparent hover:ring-slate-300'}`}
+                                    style={{ backgroundColor: c }} />
+                            ))}
+                            <label className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-400" title="Custom color">
+                                <input type="color" value={settings.accent} onChange={(e) => setSetting('accent', e.target.value)} className="h-0 w-0 opacity-0" />
+                                +
+                            </label>
+                        </div>
+                    </Control>
+
+                    <Control label="Font style">
+                        <select value={settings.fontFamily} onChange={(e) => setSetting('fontFamily', e.target.value)}
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-teal-400 focus:outline-none">
+                            {FONT_OPTIONS.map((f) => <option key={f.label} value={f.value}>{f.label}</option>)}
+                        </select>
+                    </Control>
+
+                    <Control label="Font size" hint={`${settings.fontSize}px`}>
+                        <input type="range" min="11" max="20" value={settings.fontSize} onChange={(e) => setSetting('fontSize', Number(e.target.value))} className="w-full accent-teal-500" />
+                        <div className="mt-0.5 flex justify-between text-[10px] text-slate-400"><span>A</span><span className="text-base">A</span></div>
+                    </Control>
+
+                    <Control label="Line height" hint={settings.lineHeight.toFixed(2)}>
+                        <input type="range" min="1.1" max="1.9" step="0.05" value={settings.lineHeight} onChange={(e) => setSetting('lineHeight', Number(e.target.value))} className="w-full accent-teal-500" />
+                    </Control>
+                </div>
+            )}
+
+            {/* ATS Check panel */}
+            {panel === 'ats' && (
+                <div className="no-print fixed right-0 top-14 bottom-0 z-40 w-80 overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
+                    <div className="mb-4 flex items-center justify-between">
+                        <h3 className="text-sm font-bold text-slate-800">ATS Check</h3>
+                        <button onClick={() => setPanel(null)} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                    <div className="mb-5 flex items-center gap-4 rounded-2xl bg-slate-50 p-4">
+                        <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white ${passed === checks.length ? 'bg-emerald-500' : passed >= checks.length - 2 ? 'bg-teal-500' : 'bg-amber-500'}`}>
+                            {Math.round((passed / checks.length) * 100)}
+                        </div>
+                        <div>
+                            <p className="text-sm font-semibold text-slate-800">{passed} of {checks.length} checks passed</p>
+                            <p className="text-xs text-slate-500">Fix the items below to improve parsing.</p>
+                        </div>
+                    </div>
+                    <ul className="space-y-2.5">
+                        {checks.map((c) => (
+                            <li key={c.label} className="flex items-start gap-2.5 text-sm">
+                                {c.ok ? (
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                ) : (
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="mt-0.5 h-4 w-4 shrink-0 text-amber-500"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.3 3.86l-8.3 14A1 1 0 003 19h18a1 1 0 00.86-1.5l-8.3-14a1 1 0 00-1.72 0z" /></svg>
+                                )}
+                                <span className={c.ok ? 'text-slate-600' : 'font-medium text-slate-800'}>{c.label}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function Control({ label, hint, children }) {
+    return (
+        <div className="mb-5">
+            <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wide text-slate-500">{label}</span>
+                {hint && <span className="text-[11px] text-slate-400">{hint}</span>}
+            </div>
+            {children}
         </div>
     );
 }

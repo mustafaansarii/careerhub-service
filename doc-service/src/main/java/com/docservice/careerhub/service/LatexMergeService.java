@@ -7,14 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Merges a resume data object into a Mustache placeholder LaTeX template.
- *
- * - {@code {{ name }}} substitutions are LaTeX-escaped so user input can't break compilation.
- * - {@code {{{ url }}}} (triple) values are emitted raw (for hrefs).
- * - A {@code has<Field>} boolean is auto-injected for every list, so a template can wrap a whole
- *   section ({@code {{#hasExperience}} … {{/hasExperience}}}) and hide it when empty.
- */
 @Service
 public class LatexMergeService {
 

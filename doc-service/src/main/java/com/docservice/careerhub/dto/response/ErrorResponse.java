@@ -1,6 +1,5 @@
 package com.docservice.careerhub.dto.response;
 
-/** Uniform error body returned by GlobalExceptionHandler. */
 public class ErrorResponse {
 
     private final int status;

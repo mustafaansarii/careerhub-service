@@ -17,7 +17,6 @@ import lombok.Data;
 
 import java.time.Instant;
 
-
 @Data
 @Entity
 @Table(name = "doc_templates", indexes = {
@@ -30,7 +29,6 @@ public class DocTemplate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Join key linking this LaTeX template to the matching form-based design (frontend registry). */
     @Column(unique = true)
     private String templateCode;
 

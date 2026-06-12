@@ -11,10 +11,9 @@ export default function MinimalNavbar() {
                     onClick={() => navigate('/')}
                     className="group flex items-center gap-3 outline-none"
                 >
-                    {/* Logo mark */}
+
                     <BrandLogo height={40} />
 
-                    {/* Brand name */}
                     <span className="text-base text-white font-medium tracking-widest">
                         NextCV
                     </span>

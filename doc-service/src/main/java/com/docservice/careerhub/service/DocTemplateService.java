@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Service
 public class DocTemplateService {
 
@@ -75,7 +74,7 @@ public class DocTemplateService {
         template.setImageUrl(request.getImageUrl());
         template.setLatexCode(request.getLatexCode());
         template.setStatus(DocTemplateStatus.PENDING);
-        // Persist first so the id is available for the storage object path.
+
         return docTemplateRepository.save(template);
     }
 

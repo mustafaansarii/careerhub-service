@@ -21,13 +21,14 @@ function Bullets({ bullets }) {
 const classic = {
     code: 'classic',
     name: 'Classic',
-    sheetClass: 'font-serif text-[14px] leading-relaxed text-slate-900',
+    accent: '#0f172a',
+    sheetClass: 'font-serif text-slate-900',
 
     renderHeader: (r, set) => (
         <div className="text-center">
-            <Field value={r.name} onChange={(v) => set('name', v)} ph="YOUR NAME" className="block text-3xl font-bold uppercase tracking-[0.15em]" />
-            <Field value={r.title} onChange={(v) => set('title', v)} ph="The role you are applying for?" className="mt-1 block text-lg text-slate-400" />
-            <div className="mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-slate-500">
+            <Field value={r.name} onChange={(v) => set('name', v)} ph="YOUR NAME" className="block text-[2em] font-bold uppercase tracking-[0.15em]" />
+            <Field value={r.title} onChange={(v) => set('title', v)} ph="The role you are applying for?" className="mt-1 block text-[1.2em] text-slate-400" />
+            <div className="mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[0.9em] text-slate-500">
                 <Field value={r.phone} onChange={(v) => set('phone', v)} ph="Phone" /><span className="text-slate-300">•</span>
                 <Field value={r.email} onChange={(v) => set('email', v)} ph="Email" /><span className="text-slate-300">•</span>
                 <Field value={r.linkedin} onChange={(v) => set('linkedin', v)} ph="LinkedIn/Portfolio" /><span className="text-slate-300">•</span>
@@ -38,8 +39,8 @@ const classic = {
 
     renderTitle: (title) => (
         <>
-            <h2 className="text-center text-lg font-bold uppercase tracking-wide">{title}</h2>
-            <div className="mb-3 mt-1 border-t border-slate-900" />
+            <h2 className="text-center text-[1.2em] font-bold uppercase tracking-wide text-[color:var(--rb-accent)]">{title}</h2>
+            <div className="mb-3 mt-1 border-t border-[color:var(--rb-accent)]" />
         </>
     ),
 
@@ -96,7 +97,7 @@ const classic = {
                 </p>
             );
         }
-        // simple
+
         return <Field value={item.text} onChange={(v) => update({ text: v })} ph={ph} className="block" />;
     },
 };

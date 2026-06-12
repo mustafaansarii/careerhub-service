@@ -31,7 +31,7 @@ function App() {
     authService.verifyAuth().finally(() => setAuthReady(true));
   }, []);
 
-  if (!authReady) return null;   // render nothing while the probe is in-flight
+  if (!authReady) return null;
 
   return (
     <div className="min-h-screen text-black dark:text-white">
@@ -55,7 +55,6 @@ function App() {
         <Route path="/resume-builder" element={<ResumeBuilder />} />
         <Route path="/resume-builder/:code" element={<ResumeBuilder />} />
 
-        {/* Document builder (auth required) */}
         <Route
           path="/templates"
           element={
@@ -81,7 +80,6 @@ function App() {
           }
         />
 
-        {/* Account (auth required) */}
         <Route
           path="/profile"
           element={

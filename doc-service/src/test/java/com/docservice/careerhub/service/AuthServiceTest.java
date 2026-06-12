@@ -50,9 +50,9 @@ class AuthServiceTest {
         encoder = new BCryptPasswordEncoder();
         mailService = mock(MailService.class);
         AppProperties props = new AppProperties();
-        props.setJwtSecret("0123456789012345678901234567890123456789"); // 40 chars
+        props.setJwtSecret("0123456789012345678901234567890123456789");
         props.setJwtExpiryMs(3600000L);
-        props.setSessionExpiryMs(2592000000L); // 30 days
+        props.setSessionExpiryMs(2592000000L);
         jwtService = new JwtService(props);
 
         service = new AuthService();
@@ -236,7 +236,6 @@ class AuthServiceTest {
         AuthService.LoginResult result =
                 service.loginWithOAuth("user@example.com", "Ignored Name", "GITHUB", DEVICE);
 
-        // keeps the existing account (does not overwrite the original full name)
         assertThat(result.user().getId()).isEqualTo(7L);
         assertThat(result.user().getFullName()).isEqualTo("User");
         assertThat(result.user().getProvider()).isEqualTo("GITHUB");
@@ -260,7 +259,7 @@ class AuthServiceTest {
         boolean active = service.validateAndTouchSession("jti-1");
 
         assertThat(active).isTrue();
-        // expiry slid ~30 days into the future
+
         assertThat(session.getExpiresAt()).isAfter(Instant.now().plusSeconds(86400));
         verify(sessionRepo).save(session);
         verify(sessionRepo, never()).delete(any());

@@ -6,7 +6,7 @@ const api = axios.create({
     headers: { 'Content-Type': 'application/json' },
 });
 
-const TEMPLATES = 'admin/doc-templates'; 
+const TEMPLATES = 'admin/doc-templates';
 const USER_DOCS = 'user-docs';
 
 function listParams({ type, keyword, page = 0, size = 10 }) {

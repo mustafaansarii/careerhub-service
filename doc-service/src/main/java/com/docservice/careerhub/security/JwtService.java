@@ -59,20 +59,14 @@ public class JwtService {
         return roles instanceof List ? (List<String>) roles : List.of();
     }
 
-    /** Whether a parsed token is valid, expired (but correctly signed), or unusable. */
     public enum Status { VALID, EXPIRED, INVALID }
 
-    /**
-     * Result of inspecting a token. For VALID and EXPIRED the claims are populated (an expired token
-     * is still trusted to identify its session, enabling silent re-issue); INVALID carries nothing.
-     */
     public record TokenInspection(Status status, String email, String tokenId, List<String> roles) {
         public boolean usable() {
             return status == Status.VALID || status == Status.EXPIRED;
         }
     }
 
-    /** Parses a token without throwing — a correctly-signed but expired token returns EXPIRED with its claims. */
     public TokenInspection inspect(String token) {
         try {
             return inspectionOf(Status.VALID, parse(token));

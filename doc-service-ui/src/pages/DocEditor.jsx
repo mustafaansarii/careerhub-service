@@ -68,7 +68,7 @@ export default function DocEditor() {
                 try {
                     const parsed = JSON.parse(await err.response.data.text());
                     msg = parsed?.message || msg;
-                } catch { /* ignore */ }
+                } catch {}
             } else {
                 msg = err?.response?.data?.message || msg;
             }
@@ -82,9 +82,9 @@ export default function DocEditor() {
 
     return (
         <div className="flex flex-col bg-slate-950 h-screen">
-            {/* ── Toolbar ──────────────────────────────────────────────────── */}
+
             <div className="grid h-12 shrink-0 grid-cols-3 items-center border-b border-slate-200 bg-white px-4">
-                {/* Left — Back + doc name */}
+
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => navigate(-1)}
@@ -101,7 +101,6 @@ export default function DocEditor() {
                     </span>
                 </div>
 
-                {/* Center — Compile button */}
                 <div className="flex justify-center">
                     <button
                         onClick={handleCompile}
@@ -132,7 +131,6 @@ export default function DocEditor() {
                     </button>
                 </div>
 
-                {/* Right — Download */}
                 <div className="flex justify-end">
                     {pdfUrl && (
                         <a
@@ -149,9 +147,8 @@ export default function DocEditor() {
                 </div>
             </div>
 
-            {/* ── Editor + Preview ─────────────────────────────────────────── */}
             <div className="flex flex-1 overflow-hidden">
-                {/* Left — Monaco editor */}
+
                 <div ref={editorContainerRef} className="flex w-1/2 flex-col border-r border-slate-700">
                     {loadingDoc ? (
                         <div className="flex flex-1 items-center justify-center bg-slate-950">
@@ -193,7 +190,6 @@ export default function DocEditor() {
                     )}
                 </div>
 
-                {/* Right — PDF preview */}
                 <div className="flex w-1/2 flex-col bg-slate-800">
                     <div className="flex-1 overflow-hidden">
                         {pdfUrl ? (

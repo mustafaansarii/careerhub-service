@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Service
 public class UserDocService {
 
@@ -41,8 +40,6 @@ public class UserDocService {
         DocTemplate template = docTemplateRepository.findById(templateId)
                 .orElseThrow(() -> ApiException.notFound("Doc template not found: " + templateId));
 
-        // The template's latexCode is a Mustache placeholder template — fill it with the user's
-        // saved details (or the sample fallback) so the LaTeX editor opens real, compilable LaTeX.
         String merged = latexMergeService.merge(template.getLatexCode(), resumeDataResolver.forUser(ownerEmail));
 
         UserDoc doc = new UserDoc();
@@ -70,7 +67,6 @@ public class UserDocService {
         return userDocRepository.findByIdAndOwnerEmail(id, ownerEmail)
                 .orElseThrow(() -> ApiException.notFound("Doc not found: " + id));
     }
-
 
     @Transactional
     public byte[] compileAndUpdate(String ownerEmail, Long id, String latexCode) {

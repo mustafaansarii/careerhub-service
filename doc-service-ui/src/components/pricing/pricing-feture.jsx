@@ -89,7 +89,6 @@ function PricingCard({ plan, isPopular }) {
   return (
     <div className="relative flex flex-col h-full">
 
-      {/* Badge floats on the top horizontal border */}
       {plan.badge && (
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-black/50 dark:border-white/50 bg-white dark:bg-black px-3 py-0.5 text-[11px] font-bold uppercase tracking-widest text-slate-900 dark:text-white">
@@ -99,7 +98,6 @@ function PricingCard({ plan, isPopular }) {
         </div>
       )}
 
-      {/* Plan name + price + tagline */}
       <div className="px-7 pt-10 pb-6">
         <p className={`text-[11px] font-bold uppercase tracking-widest ${isPopular ? 'text-teal-500' : 'text-slate-400 dark:text-slate-500'}`}>
           {plan.name}
@@ -116,7 +114,6 @@ function PricingCard({ plan, isPopular }) {
         </p>
       </div>
 
-      {/* Features */}
       <ul className="flex-1 px-7 py-6 space-y-3">
         {plan.features.map((f) => (
           <li key={f} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
@@ -132,7 +129,6 @@ function PricingCard({ plan, isPopular }) {
         ))}
       </ul>
 
-      {/* CTA */}
       <div className="px-7 py-6">
         <Link
           to={plan.ctaTo}
@@ -159,7 +155,6 @@ export default function PricingFeature() {
   return (
     <section className="w-full">
 
-      {/* ── Toggle (no borders above) ── */}
       <div className="flex items-center justify-center gap-3 py-10 px-4">
         {['monthly', 'yearly'].map((cycle) => (
           <button
@@ -178,13 +173,10 @@ export default function PricingFeature() {
         ))}
       </div>
 
-      {/* ── FULL-SCREEN top horizontal border ── */}
       <div className="w-full h-px bg-black/50 dark:bg-white/50" />
 
-      {/* ── Cards zone: vertical lines live here, spanning exactly top → bottom border ── */}
       <div className="relative mx-auto max-w-5xl">
 
-        {/* Vertical lines — desktop only, start & end at the two full-width h-px lines */}
         <div className="pointer-events-none absolute left-0   top-0 bottom-0 w-px bg-black/50 dark:bg-white/50 hidden md:block" />
         <div className="pointer-events-none absolute left-1/3 top-0 bottom-0 w-px bg-black/50 dark:bg-white/50 hidden md:block" />
         <div className="pointer-events-none absolute left-2/3 top-0 bottom-0 w-px bg-black/50 dark:bg-white/50 hidden md:block" />
@@ -203,10 +195,8 @@ export default function PricingFeature() {
         </div>
       </div>
 
-      {/* ── FULL-SCREEN bottom horizontal border ── */}
       <div className="w-full h-px bg-black/50 dark:bg-white/50" />
 
-      {/* ── Footer note (no borders below) ── */}
       <div className="py-8 text-center px-4">
         <p className="text-xs text-slate-400 dark:text-slate-600">
           All plans include a{' '}

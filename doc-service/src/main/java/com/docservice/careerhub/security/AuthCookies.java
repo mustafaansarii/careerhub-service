@@ -4,7 +4,6 @@ import com.docservice.careerhub.config.AppProperties;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
-/** Builds the httpOnly access-token cookie (and the cleared variant for logout). */
 @Component
 public class AuthCookies {
 
@@ -19,8 +18,7 @@ public class AuthCookies {
         this.secure = appProperties.isCookieSecure();
         this.sameSite = appProperties.getCookieSameSite();
         this.path = appProperties.getCookiePath();
-        // Cookie lives as long as the session, not the short access token, so the browser keeps
-        // sending the (possibly expired) token and the filter can silently re-issue it.
+
         this.maxAgeSeconds = appProperties.getSessionExpiryMs() / 1000;
     }
 

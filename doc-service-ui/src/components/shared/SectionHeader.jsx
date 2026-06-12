@@ -1,12 +1,4 @@
-/**
- * Consistent section header used across content pages.
- *
- * Props:
- *   eyebrow     – small uppercase label above the title
- *   title       – main heading text
- *   highlight   – optional word(s) rendered as the teal italic accent after the title
- *   description – optional supporting paragraph
- */
+
 export default function SectionHeader({ eyebrow, title, highlight, description }) {
     return (
         <div className="mx-auto mb-12 max-w-2xl text-center">

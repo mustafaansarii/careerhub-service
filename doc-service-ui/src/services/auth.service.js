@@ -32,18 +32,18 @@ axiosInstance.interceptors.response.use(
 class AuthService {
     async signup(fullName, email, password) {
         const response = await axiosInstance.post('signup', { fullName, email, password });
-        return response.data; // { message }
+        return response.data;
     }
 
     async register(fullName, email, password, otp) {
         const response = await axiosInstance.post('register', { fullName, email, password, otp });
-        return response.data; // UserResponse
+        return response.data;
     }
 
     async signin(email, password) {
         const response = await axiosInstance.post('signin', { email, password });
         localStorage.setItem('isAuthenticated', 'true');
-        return response.data; // UserResponse
+        return response.data;
     }
 
     async logout() {
@@ -55,10 +55,9 @@ class AuthService {
         }
     }
 
-    /** Current user; throws if not authenticated. */
     async me() {
         const response = await axiosInstance.get('me');
-        return response.data; // UserResponse
+        return response.data;
     }
 
     isAuthenticated() {

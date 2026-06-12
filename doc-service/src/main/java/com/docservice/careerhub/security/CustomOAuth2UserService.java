@@ -16,11 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Loads the OAuth2 user and normalizes it to always expose an {@code email} and {@code name}
- * attribute, with {@code email} as the principal name. For GitHub (whose userinfo omits a private
- * email) it falls back to the {@code /user/emails} API to recover the verified primary address.
- */
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
@@ -48,7 +43,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         String name = asText(attributes.get(NAME));
         if (Objects.isNull(name)) {
-            name = asText(attributes.get("login")); // GitHub username
+            name = asText(attributes.get("login"));
         }
         attributes.put(EMAIL, email);
         attributes.put(NAME, Objects.requireNonNullElse(name, email));

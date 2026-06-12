@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-/** Public liveness endpoint for load balancers / Render health checks. */
 @RestController
 public class HealthController {
 

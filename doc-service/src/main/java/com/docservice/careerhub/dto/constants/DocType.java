@@ -6,6 +6,7 @@ public enum DocType {
     BOOKS,
     CALENDARS,
     CV_AND_RESUME,
+    COVER_LETTER,
     FORMAL_LETTERS,
     ASSIGNMENTS,
     NEWSLETTERS,

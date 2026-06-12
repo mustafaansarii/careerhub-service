@@ -4,10 +4,6 @@ import ResumeWorkspace from '../resume-template/ResumeWorkspace';
 import { getTemplate } from '../resume-template/registry';
 import userService from '../services/user.service';
 
-/*
- * Public form-based resume builder. The :code route param selects the design. If the visitor is
- * signed in, their saved profile details prefill the form (and edits save back on download).
- */
 export default function ResumeBuilder() {
     const { code } = useParams();
     const design = getTemplate(code);
@@ -17,7 +13,7 @@ export default function ResumeBuilder() {
         let alive = true;
         (async () => {
             try {
-                const me = await userService.getProfile();      // 401 for anonymous → caught below
+                const me = await userService.getProfile();
                 if (alive) setState({ loading: false, profile: me?.profileData || null, authed: true });
             } catch {
                 if (alive) setState({ loading: false, profile: null, authed: false });

@@ -4,7 +4,6 @@ import toast from 'react-hot-toast';
 import authService from '../../services/auth.service';
 import BrandLogo from '../shared/BrandLogo';
 
-/* ── Icons ─────────────────────────────────────────────────────────── */
 const iconBase = 'h-5 w-5';
 const DocIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={iconBase}>
@@ -72,28 +71,28 @@ const navItems = [
                 {
                     kind: 'cards',
                     items: [
-                        { icon: 'mail', title: 'Cover Letter Templates', desc: 'Match your resume design', to: '/templates?type=FORMAL_LETTERS' },
+                        { icon: 'mail', title: 'Cover Letter Templates', desc: 'Match your resume design', to: '/templates?type=COVER_LETTER' },
                         { icon: 'grid', title: 'Browse all templates', desc: 'Every document type', to: '/templates' },
                     ],
                 },
                 {
                     kind: 'links', heading: 'Guides',
                     items: [
-                        { title: 'Writing a cover letter', desc: 'A complete how-to', to: '/templates?type=FORMAL_LETTERS' },
-                        { title: 'Formats & structure', desc: 'Pick the right format', to: '/templates?type=FORMAL_LETTERS' },
+                        { title: 'Writing a cover letter', desc: 'A complete how-to', to: '/templates?type=COVER_LETTER' },
+                        { title: 'Formats & structure', desc: 'Pick the right format', to: '/templates?type=COVER_LETTER' },
                     ],
                 },
                 {
                     kind: 'list', heading: 'Examples',
                     items: [
-                        { label: 'Software Engineer', to: '/templates?type=FORMAL_LETTERS' },
-                        { label: 'Data Analyst', to: '/templates?type=FORMAL_LETTERS' },
-                        { label: 'Designer', to: '/templates?type=FORMAL_LETTERS' },
-                        { label: 'Manager', to: '/templates?type=FORMAL_LETTERS' },
+                        { label: 'Software Engineer', to: '/templates?type=COVER_LETTER' },
+                        { label: 'Data Analyst', to: '/templates?type=COVER_LETTER' },
+                        { label: 'Designer', to: '/templates?type=COVER_LETTER' },
+                        { label: 'Manager', to: '/templates?type=COVER_LETTER' },
                     ],
                 },
             ],
-            promo: { title: 'ATS-friendly cover letters', desc: 'Create a matching cover letter fast.', cta: 'Browse templates', to: '/templates?type=FORMAL_LETTERS' },
+            promo: { title: 'ATS-friendly cover letters', desc: 'Create a matching cover letter fast.', cta: 'Browse templates', to: '/templates?type=COVER_LETTER' },
         },
     },
     { label: 'For Organizations', to: '/contact-us' },
@@ -106,7 +105,6 @@ const profileItems = [
     { label: 'Settings', to: '/settings' },
 ];
 
-/** Flattens a mega menu into a simple link list for the mobile menu. */
 function megaLinks(item) {
     const out = [];
     (item.mega?.columns || []).forEach((col) => (col.items || []).forEach((it) => out.push({ label: it.title || it.label, to: it.to })));
@@ -125,11 +123,6 @@ function ChevronDown({ open }) {
     );
 }
 
-/**
- * Hover/click dropdown. The hero wrapper has `overflow-hidden`, so the panel is positioned
- * `fixed` (to escape the clip) and repositioned on scroll/resize while open. The `pt-3` wrapper
- * keeps the hover area continuous between the button and the card (no closing gap).
- */
 function DropdownNavItem({ item, isOpen, onOpen, onCloseSelf, onClose }) {
     const ref = useRef(null);
     const btnRef = useRef(null);
@@ -142,7 +135,6 @@ function DropdownNavItem({ item, isOpen, onOpen, onCloseSelf, onClose }) {
         setPos({ top: r.bottom });
     }, []);
 
-    // Keep the panel glued to the button while it's open (scroll/resize).
     useEffect(() => {
         if (!isOpen) return;
         window.addEventListener('scroll', reposition, true);
@@ -153,7 +145,6 @@ function DropdownNavItem({ item, isOpen, onOpen, onCloseSelf, onClose }) {
         };
     }, [isOpen, reposition]);
 
-    // Outside click fully closes the menu.
     useEffect(() => {
         const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
         document.addEventListener('mousedown', handler);
@@ -164,11 +155,10 @@ function DropdownNavItem({ item, isOpen, onOpen, onCloseSelf, onClose }) {
 
     const enter = () => {
         clearTimeout(closeTimer.current);
-        reposition();          // position synchronously, before the panel paints
+        reposition();
         onOpen();
     };
-    // Only this item closes itself, and only after a grace period — so moving the
-    // cursor into the panel (or onto a sibling) never wipes the menu that just opened.
+
     const leave = () => {
         clearTimeout(closeTimer.current);
         closeTimer.current = setTimeout(onCloseSelf, 220);
@@ -533,7 +523,7 @@ export default function Navbar() {
             className="relative z-50 border-b border-white bg-gradient-to-b from-slate-950/45 via-slate-950/15 to-transparent text-white"
         >
             <nav className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
-                {/* Logo */}
+
                 <div className="flex flex-1 items-center">
                     <button onClick={() => navigate('/')} className="group flex items-center gap-2.5 outline-none">
                         <BrandLogo height={38} />
@@ -543,10 +533,8 @@ export default function Navbar() {
                     </button>
                 </div>
 
-                {/* Desktop nav */}
                 <NavCenter visibleNavItems={visibleNavItems} />
 
-                {/* Right: Auth / Profile */}
                 <div className="flex flex-1 items-center justify-end gap-2">
                     {isAuthenticated ? (
                         <div className="hidden md:block">
@@ -572,7 +560,6 @@ export default function Navbar() {
                         </div>
                     )}
 
-                    {/* Mobile hamburger */}
                     <button
                         ref={hamburgerRef}
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

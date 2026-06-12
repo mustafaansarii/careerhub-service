@@ -18,6 +18,6 @@ public class UserResponse {
     private String fullName;
     private boolean verified;
     private List<Role> roles;
-    /** Parsed resume/profile details (the object the client PATCHed); null if never set. */
+
     private Object profileData;
 }

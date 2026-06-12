@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Objects;
 
-/** Pulls device metadata (user agent, client IP) from an HTTP request. */
 public final class RequestMetadataExtractor {
 
     private static final String UNKNOWN = "unknown";

@@ -40,7 +40,6 @@ public class AuthUser {
 
     private String provider;
 
-    /** Structured resume/profile details (JSON): name, contact, education[], experience[], etc. */
     @Column(columnDefinition = "TEXT")
     private String profileData;
 

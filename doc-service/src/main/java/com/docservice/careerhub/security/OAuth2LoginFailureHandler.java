@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-/** Redirects failed OAuth logins back to the frontend login page with an error flag. */
 @Component
 public class OAuth2LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 

@@ -13,10 +13,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Resolves the resume data used to fill a template: the signed-in user's saved profile details if
- * present, otherwise the bundled sample (so an empty account still produces a complete example).
- */
 @Service
 public class ResumeDataResolver {
 
@@ -44,7 +40,7 @@ public class ResumeDataResolver {
                 Map<String, Object> data = objectMapper.readValue(user.getProfileData(), new TypeReference<Map<String, Object>>() { });
                 if (!data.isEmpty()) return data;
             } catch (Exception ignored) {
-                // fall through to sample
+
             }
         }
         return new HashMap<>(sample);

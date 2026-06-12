@@ -23,13 +23,14 @@ const Dot = () => <span className="px-1.5 text-slate-300">|</span>;
 const modern = {
     code: 'modern',
     name: 'Modern',
-    sheetClass: 'font-sans text-[13.5px] leading-relaxed text-slate-800',
+    accent: '#0f766e',
+    sheetClass: 'font-sans text-slate-800',
 
     renderHeader: (r, set) => (
         <div>
-            <Field value={r.name} onChange={(v) => set('name', v)} ph="YOUR NAME" className="block text-[34px] font-extrabold leading-tight tracking-tight text-slate-900" />
-            <Field value={r.title} onChange={(v) => set('title', v)} ph="The role you are applying for?" className="mt-0.5 block text-base font-semibold text-teal-700" />
-            <div className="mt-2 flex flex-wrap items-center gap-y-1 text-xs text-slate-500">
+            <Field value={r.name} onChange={(v) => set('name', v)} ph="YOUR NAME" className="block text-[2.4em] font-extrabold leading-tight tracking-tight text-slate-900" />
+            <Field value={r.title} onChange={(v) => set('title', v)} ph="The role you are applying for?" className="mt-0.5 block text-[1.05em] font-semibold text-[color:var(--rb-accent)]" />
+            <div className="mt-2 flex flex-wrap items-center gap-y-1 text-[0.82em] text-slate-500">
                 <Field value={r.location} onChange={(v) => set('location', v)} ph="Location" /><Dot />
                 <Field value={r.phone} onChange={(v) => set('phone', v)} ph="Phone" /><Dot />
                 <Field value={r.email} onChange={(v) => set('email', v)} ph="Email" /><Dot />
@@ -41,8 +42,8 @@ const modern = {
 
     renderTitle: (title) => (
         <>
-            <h2 className="text-sm font-bold uppercase tracking-wider text-teal-700">{title}</h2>
-            <div className="mb-2 mt-0.5 border-t-2 border-teal-600/70" />
+            <h2 className="text-[0.95em] font-bold uppercase tracking-wider text-[color:var(--rb-accent)]">{title}</h2>
+            <div className="mb-2 mt-0.5 border-t-2 border-[color:var(--rb-accent)]" />
         </>
     ),
 
@@ -56,7 +57,7 @@ const modern = {
                     <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0 flex-1">
                             <Field value={item.secondary} onChange={(v) => update({ secondary: v })} ph={secondaryPh} className="block font-bold text-slate-900" />
-                            <Field value={item.primary} onChange={(v) => update({ primary: v })} ph={primaryPh} className="block text-teal-700" />
+                            <Field value={item.primary} onChange={(v) => update({ primary: v })} ph={primaryPh} className="block text-[color:var(--rb-accent)]" />
                         </div>
                         <div className="shrink-0 text-right text-xs text-slate-500">
                             <Field value={item.location} onChange={(v) => update({ location: v })} ph="Location" className="block" />
@@ -93,7 +94,7 @@ const modern = {
         if (kind === 'pair') {
             return (
                 <p>
-                    <Field value={item.label} onChange={(v) => update({ label: v })} ph="Category" className="font-bold text-teal-700" />
+                    <Field value={item.label} onChange={(v) => update({ label: v })} ph="Category" className="font-bold text-[color:var(--rb-accent)]" />
                     <span className="px-1.5 text-slate-400">:</span>
                     <Field value={item.value} onChange={(v) => update({ value: v })} ph="e.g. Java, Python, SQL" className="text-slate-700" />
                 </p>

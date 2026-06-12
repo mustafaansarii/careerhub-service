@@ -127,7 +127,7 @@ class UserDocServiceTest {
                 .isInstanceOf(ApiException.class)
                 .hasMessageContaining("compilation");
         assertThat(doc.getStatus()).isEqualTo(DocTemplateStatus.FAILED);
-        assertThat(doc.getLatexCode()).isEqualTo("bad"); // new latex saved even on failure
+        assertThat(doc.getLatexCode()).isEqualTo("bad");
         verify(storage, never()).upload(any(), anyString(), anyString());
     }
 

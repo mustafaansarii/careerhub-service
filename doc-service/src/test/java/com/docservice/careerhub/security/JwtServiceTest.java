@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JwtServiceTest {
 
-    private static final String SECRET = "0123456789012345678901234567890123456789"; // 40 chars
+    private static final String SECRET = "0123456789012345678901234567890123456789";
 
     private JwtService jwtService(long expiryMs) {
         AppProperties props = new AppProperties();
@@ -34,7 +34,7 @@ class JwtServiceTest {
 
     @Test
     void inspectReturnsExpiredButStillExposesClaimsForRefresh() {
-        // expiry in the past -> token is born expired, but correctly signed
+
         JwtService service = jwtService(-1000L);
         String token = service.generate("user@example.com", "jti-1", List.of("USER"));
 

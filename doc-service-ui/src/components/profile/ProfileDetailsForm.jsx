@@ -1,10 +1,5 @@
 import { useState } from 'react';
 
-/*
- * Edits the user's structured resume/profile details (the shape stored on the account and reused
- * to prefill the resume builder). Bullets are edited as newline-separated text for simplicity.
- */
-
 const EMPTY = {
     name: '', location: '', phone: '', email: '',
     linkedin: '', linkedinUrl: '', github: '', githubUrl: '',
@@ -76,7 +71,7 @@ export default function ProfileDetailsForm({ initial, onCancel, onSave }) {
 
     return (
         <div className="space-y-8">
-            {/* Basics */}
+
             <section>
                 <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-700">Basic details</h3>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

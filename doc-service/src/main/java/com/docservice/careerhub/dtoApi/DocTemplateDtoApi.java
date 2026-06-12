@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-
 @Component
 public class DocTemplateDtoApi extends AbstractDtoUtil {
 
@@ -50,8 +49,6 @@ public class DocTemplateDtoApi extends AbstractDtoUtil {
         List<DocTemplateMetadata> content = result.getContent().stream().map(this::toMetadata).toList();
         return PageUtil.toResponse(result, content);
     }
-
-    // ── private helpers ─────────────────────────────────────────────────
 
     private DocTemplateMetadata toMetadata(DocTemplate template) {
         return DocTemplateMetadata.builder()

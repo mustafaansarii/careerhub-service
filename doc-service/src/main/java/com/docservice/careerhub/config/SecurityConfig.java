@@ -48,7 +48,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /** Allows the configured frontend origins to call the API with credentials (cookies). */
     @Bean
     public CorsConfigurationSource corsConfigurationSource(AppProperties appProperties) {
         CorsConfiguration config = new CorsConfiguration();
@@ -73,8 +72,6 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtFilter =
                 new JwtAuthenticationFilter(jwtService, authService, authCookies);
 
-        // Return 401 for unauthenticated API calls instead of redirecting to the OAuth login page
-        // (oauth2Login would otherwise 302 → which breaks SPA/XHR session checks like /api/auth/me).
         AuthenticationEntryPoint restEntryPoint =
                 (request, response, ex) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
 
@@ -84,7 +81,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(PUBLIC_PATHS).permitAll();
-                    // Method+path rules sourced from user-roles.csv ("PUBLIC" = permitAll).
+
                     for (RoleEndpointAccessLoader.AccessRule rule : accessLoader.getRules()) {
                         if (java.util.Arrays.asList(rule.roles()).contains("PUBLIC")) {
                             auth.requestMatchers(rule.method(), rule.pattern()).permitAll();

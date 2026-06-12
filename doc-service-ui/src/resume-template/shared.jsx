@@ -1,16 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import SAMPLE_RESUME from './sampleResume';
 
-/*
- * Shared engine for the form-based resume builder.
- *
- * The builder is driven by a structured `resume` MODEL (so it can be prefilled from the user's
- * saved profile and serialized back on download). Text fields are caret-safe: `Field` seeds the
- * contentEditable from the model once on mount and reports edits via onChange, but never rewrites
- * the DOM while typing. Designs only supply visual slots (see templates/*.jsx).
- */
-
-/* ── Page geometry (US Letter @96dpi) ────────────────────────────────── */
 export const PAGE_W = 816;
 export const PAGE = 1056;
 export const GAP = 40;
@@ -20,7 +10,6 @@ export const MARGIN = 48;
 let _id = 0;
 export const nextId = () => ++_id;
 
-/* ── Section catalog ─────────────────────────────────────────────────── */
 export const SECTION_CATALOG = [
     { type: 'summary', title: 'Summary', kind: 'text', ph: "Briefly explain why you're a great fit for the role." },
     { type: 'experience', title: 'Experience', kind: 'exp', primaryPh: 'Company Name', secondaryPh: 'Title', addLabel: 'experience' },
@@ -43,7 +32,6 @@ const LIST_TYPES = SECTION_CATALOG.filter((s) => s.kind !== 'text').map((s) => s
 const DEFAULT_ORDER = ['summary', 'experience', 'skills', 'courses', 'education'];
 const FULL_ORDER = ['summary', 'experience', 'projects', 'skills', 'education', 'courses', 'certifications', 'achievements', 'awards', 'languages', 'volunteer', 'publications', 'interests', 'references'];
 
-/* ── Model helpers ───────────────────────────────────────────────────── */
 export function blankItem(kind) {
     switch (kind) {
         case 'exp': return { id: nextId(), primary: '', secondary: '', location: '', period: '', bullets: [{ id: nextId(), text: '' }] };
@@ -54,7 +42,6 @@ export function blankItem(kind) {
     }
 }
 
-/** Build the editable model from a saved profile object; falls back to the sample when empty. */
 export function profileToResume(profile) {
     const p = (profile && Object.keys(profile).length) ? profile : SAMPLE_RESUME;
     const resume = {};
@@ -80,14 +67,11 @@ export function profileToResume(profile) {
         resume[t] = (p[t] || []).map((s) => ({ id: nextId(), text: typeof s === 'string' ? s : (s.text || '') }));
     });
 
-    // Section order: if the profile has content, show every section that has data (+ summary);
-    // otherwise the default starter set.
     const has = (t) => (META[t].kind === 'text' ? !!resume[t] : (resume[t] && resume[t].length));
     const anyData = TEXT_FIELDS.some((k) => resume[k]) || LIST_TYPES.some((t) => resume[t] && resume[t].length);
     let order = anyData ? FULL_ORDER.filter((t) => t === 'summary' || has(t)) : DEFAULT_ORDER;
     if (!order.includes('summary')) order = ['summary', ...order];
 
-    // ensure list sections in the order have at least one blank item to edit
     order.forEach((t) => {
         if (META[t].kind !== 'text' && (!resume[t] || resume[t].length === 0)) resume[t] = [blankItem(META[t].kind)];
     });
@@ -95,7 +79,6 @@ export function profileToResume(profile) {
     return resume;
 }
 
-/** Serialize the model back to a plain profile object for PATCH /api/auth/profile. */
 export function resumeToProfile(resume) {
     const out = {};
     TEXT_FIELDS.forEach((k) => { if (resume[k]) out[k] = resume[k]; });
@@ -116,15 +99,13 @@ export function resumeToProfile(resume) {
     return out;
 }
 
-/* ── Caret-safe editable field (seed from model once; report edits) ──── */
 export function Field({ as: Tag = 'span', value, onChange, ph, className = '' }) {
     const ref = useRef(null);
     useEffect(() => {
         if (ref.current && value != null && value !== '' && ref.current.textContent !== value) {
             ref.current.textContent = value;
         }
-        // seed once — intentionally not depending on `value` so typing never moves the caret
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, []);
     return (
         <Tag
@@ -139,7 +120,6 @@ export function Field({ as: Tag = 'span', value, onChange, ph, className = '' })
     );
 }
 
-/* ── Month/Year period picker (controlled by a "Mon YYYY - …" string) ── */
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const YEARS = (() => { const now = new Date().getFullYear(); const a = []; for (let y = now + 6; y >= 1980; y--) a.push(y); return a; })();
 const selectCls = 'flex-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 focus:border-teal-400 focus:outline-none disabled:opacity-40';
@@ -203,7 +183,6 @@ export function PeriodField({ value = '', onChange, className = 'block w-full ro
     );
 }
 
-/* ── Add / Remove controls ───────────────────────────────────────────── */
 export function AddButton({ onClick, children }) {
     return (
         <button onClick={onClick} className="no-print mt-2 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-teal-600 transition hover:bg-teal-50">

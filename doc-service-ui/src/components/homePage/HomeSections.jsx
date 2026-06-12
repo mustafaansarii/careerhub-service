@@ -138,7 +138,7 @@ function Stars({ count = 5 }) {
 export default function HomeSections() {
     return (
         <div className="text-slate-900">
-            {/* Trust bar */}
+
             <section className="border-b border-black/10 dark:border-white/10">
                 <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
                     <p className="text-center text-xs font-semibold uppercase tracking-widest text-slate-400">
@@ -152,7 +152,6 @@ export default function HomeSections() {
                 </div>
             </section>
 
-            {/* Chosen by — staggered stat cards + intro copy */}
             <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
                 <div className="grid items-center gap-12 lg:grid-cols-2">
                     <div className="grid grid-cols-2 gap-5">
@@ -190,7 +189,6 @@ export default function HomeSections() {
                 </div>
             </section>
 
-            {/* Features */}
             <section className="border-y border-black/10 dark:border-white/10">
                 <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-2xl text-center">
@@ -210,7 +208,6 @@ export default function HomeSections() {
                 </div>
             </section>
 
-            {/* ATS gradient panel with floating pills */}
             <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
                 <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-900 via-indigo-900 to-teal-800 px-6 py-14 sm:px-12 lg:py-20">
                     <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-teal-400/20 blur-3xl" />
@@ -244,7 +241,6 @@ export default function HomeSections() {
                 </div>
             </section>
 
-            {/* How it works */}
             <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-2xl text-center">
                     <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">From blank page to PDF in 3 steps</h2>
@@ -260,7 +256,6 @@ export default function HomeSections() {
                 </div>
             </section>
 
-            {/* Templates showcase */}
             <section className="relative overflow-hidden mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
                 <div className="pointer-events-none absolute left-1/2 top-32 -z-10 h-72 w-[60%] -translate-x-1/2 rounded-full bg-teal-500/10 blur-3xl" />
                 <div className="flex flex-col items-end justify-between gap-6 sm:flex-row">
@@ -293,14 +288,13 @@ export default function HomeSections() {
                 </div>
             </section>
 
-            {/* Testimonials on a vivid multi-color gradient-blob background */}
             <section className="relative overflow-hidden border-y border-black/10 dark:border-white/10">
-                {/* Big organic colour blob */}
+
                 <div
                     className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[120%] w-[85%] -translate-x-1/2 -translate-y-1/2 rounded-[45%] blur-[90px] opacity-70 dark:opacity-40"
                     style={{ background: 'conic-gradient(from 140deg at 50% 50%, #fcd34d, #fb7185, #e879f9, #a78bfa, #818cf8, #38bdf8, #5eead4, #fcd34d)' }}
                 />
-                {/* Accent corners for depth */}
+
                 <div className="pointer-events-none absolute -left-24 bottom-0 -z-10 h-72 w-72 rounded-full bg-sky-300/40 blur-3xl dark:bg-sky-500/20" />
                 <div className="pointer-events-none absolute -right-20 top-10 -z-10 h-72 w-72 rounded-full bg-rose-300/40 blur-3xl dark:bg-rose-500/20" />
                 <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
@@ -331,7 +325,6 @@ export default function HomeSections() {
                 </div>
             </section>
 
-            {/* FAQ */}
             <FaqSection />
         </div>
     );

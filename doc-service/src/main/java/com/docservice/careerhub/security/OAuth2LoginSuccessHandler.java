@@ -16,11 +16,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Locale;
 
-/**
- * On a successful Google/GitHub login: finds-or-creates the local account, opens a server-side
- * session, sets the same httpOnly access-token cookie used by form login, and redirects to the
- * frontend — so OAuth and email/password logins are indistinguishable downstream.
- */
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 

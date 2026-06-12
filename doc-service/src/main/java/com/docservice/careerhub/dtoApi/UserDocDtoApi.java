@@ -18,11 +18,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * Orchestration for a user's saved documents: validates forms, delegates to the service, and maps
- * entities to the metadata (no LaTeX) and full (with LaTeX) response shapes. Ownership (email) is
- * supplied by the controller from the authenticated principal.
- */
 @Component
 public class UserDocDtoApi extends AbstractDtoUtil {
 
@@ -47,13 +42,10 @@ public class UserDocDtoApi extends AbstractDtoUtil {
         return toResponse(userDocService.getOwned(ownerEmail, id));
     }
 
-    /** Persists new LaTeX, recompiles, updates the stored PDF, and returns the rendered PDF bytes. */
     public byte[] compileAndUpdate(String ownerEmail, Long id, CompileDocRequest request) {
         validate(request);
         return userDocService.compileAndUpdate(ownerEmail, id, request.getLatexCode());
     }
-
-    // ── private helpers ─────────────────────────────────────────────────
 
     private UserDocMetadata toMetadata(UserDoc doc) {
         return UserDocMetadata.builder()

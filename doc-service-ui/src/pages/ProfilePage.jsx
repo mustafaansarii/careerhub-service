@@ -67,7 +67,7 @@ export default function ProfilePage() {
                     </div>
                 ) : profile ? (
                     <div className="space-y-6">
-                        {/* Header card */}
+
                         <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5">
                             <div className="h-28 bg-gradient-to-r from-teal-600 via-teal-500 to-cyan-400" />
                             <div className="px-6 pb-6 sm:px-8">
@@ -100,7 +100,6 @@ export default function ProfilePage() {
                             </div>
                         </section>
 
-                        {/* Resume details — the main section */}
                         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
                             <div className="mb-5 flex items-start justify-between gap-4">
                                 <div>
@@ -123,7 +122,6 @@ export default function ProfilePage() {
                             )}
                         </section>
 
-                        {/* Quick links */}
                         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
                             <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-400">Quick links</h2>
                             <div className="grid gap-2.5 sm:grid-cols-3">

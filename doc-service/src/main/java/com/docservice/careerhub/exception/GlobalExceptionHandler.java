@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/** Translates exceptions into a uniform {@link ErrorResponse}. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
