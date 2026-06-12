@@ -68,6 +68,11 @@ body::after {
   100% { transform: translate3d(2%, -3%, 0) scale(1.12) rotate(6deg); }
 }
 
+@media print {
+  body::before,
+  body::after { display: none !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   body::before,
   body::after { animation: none; }

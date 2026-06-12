@@ -266,6 +266,7 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
                                 key={type}
                                 onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setOverType(type); }}
                                 onDrop={(e) => { e.preventDefault(); moveSection(dragType, type); setDragType(null); setOverType(null); }}
+                                style={{ marginTop: settings.spacing }}
                                 className={`group/sec relative transition-opacity ${dragType === type ? 'opacity-40' : ''}`}
                             >
                                 {overType === type && dragType && dragType !== type && (
@@ -276,7 +277,6 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
                                     onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', type); setDragType(type); }}
                                     onDragEnd={() => { setDragType(null); setOverType(null); }}
                                     title="Drag this heading to move the whole section"
-                                    style={{ marginTop: settings.spacing }}
                                     className="relative cursor-grab select-none rounded-md transition active:cursor-grabbing group-hover/sec:bg-teal-50/40"
                                 >
                                     <span className="no-print absolute left-1 top-1 z-10 text-slate-300 opacity-0 transition group-hover/sec:opacity-100">
