@@ -51,4 +51,9 @@ public class UserDocController {
                           @RequestBody CompileDocRequest request) {
         return userDocDtoApi.compileAndUpdate(authentication.getName(), id, request);
     }
+
+    @PostMapping(value = "/{id}/unlock", produces = MediaType.APPLICATION_PDF_VALUE)
+    public byte[] unlock(Authentication authentication, @PathVariable Long id) {
+        return userDocDtoApi.unlock(authentication.getName(), id);
+    }
 }

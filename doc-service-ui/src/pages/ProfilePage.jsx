@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import Navbar from '../components/navbar/Navbar';
 import PageHero from '../components/shared/PageHero';
 import ProfileDetailsForm from '../components/profile/ProfileDetailsForm';
+import ResumeUploadButton from '../components/profile/ResumeUploadButton';
 import userService from '../services/user.service';
 
 function initialsOf(profile) {
@@ -107,9 +108,15 @@ export default function ProfilePage() {
                                     <p className="mt-0.5 text-sm text-slate-500">Saved to your account and used to pre-fill the resume builder.</p>
                                 </div>
                                 {!editing && (
-                                    <button onClick={() => setEditing(true)} className="shrink-0 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
-                                        {details ? 'Edit details' : 'Add details'}
-                                    </button>
+                                    <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                                        <ResumeUploadButton
+                                            confirm={details ? 'Replace your current details with the uploaded resume?' : null}
+                                            onDone={(p) => { setProfile((prev) => ({ ...prev, profileData: p })); setEditing(false); }}
+                                        />
+                                        <button onClick={() => setEditing(true)} className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
+                                            {details ? 'Edit details' : 'Add details'}
+                                        </button>
+                                    </div>
                                 )}
                             </div>
 

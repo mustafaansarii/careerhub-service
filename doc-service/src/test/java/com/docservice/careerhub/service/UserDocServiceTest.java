@@ -31,6 +31,8 @@ class UserDocServiceTest {
     private StorageService storage;
     private LatexMergeService mergeService;
     private ResumeDataResolver resolver;
+    private EntitlementService entitlementService;
+    private WatermarkService watermarkService;
     private UserDocService service;
 
     @BeforeEach
@@ -41,6 +43,8 @@ class UserDocServiceTest {
         storage = mock(StorageService.class);
         mergeService = mock(LatexMergeService.class);
         resolver = mock(ResumeDataResolver.class);
+        entitlementService = mock(EntitlementService.class);
+        watermarkService = mock(WatermarkService.class);
         service = new UserDocService();
         ReflectionTestUtils.setField(service, "userDocRepository", userDocRepo);
         ReflectionTestUtils.setField(service, "docTemplateRepository", templateRepo);
@@ -48,8 +52,12 @@ class UserDocServiceTest {
         ReflectionTestUtils.setField(service, "storageService", storage);
         ReflectionTestUtils.setField(service, "latexMergeService", mergeService);
         ReflectionTestUtils.setField(service, "resumeDataResolver", resolver);
+        ReflectionTestUtils.setField(service, "entitlementService", entitlementService);
+        ReflectionTestUtils.setField(service, "watermarkService", watermarkService);
         when(resolver.forUser(anyString())).thenReturn(java.util.Map.of());
         when(mergeService.merge(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
+        when(entitlementService.isUnlocked(anyString(), any())).thenReturn(true);
+        when(watermarkService.addPreviewWatermark(any())).thenAnswer(inv -> inv.getArgument(0));
         when(userDocRepo.save(any(UserDoc.class))).thenAnswer(inv -> {
             UserDoc d = inv.getArgument(0);
             if (d.getId() == null) {

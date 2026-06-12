@@ -1,10 +1,20 @@
 
 FROM maven:3.9-eclipse-temurin-21 AS builder
 WORKDIR /build
-COPY pom.xml .
-RUN mvn dependency:go-offline -q
-COPY src ./src
-RUN mvn package -DskipTests -q
+
+# 1. Build + install the library modules into the local Maven repo.
+COPY payment-service/pom.xml ./payment-service/pom.xml
+COPY payment-service/src ./payment-service/src
+RUN mvn -f payment-service/pom.xml -q -DskipTests install
+COPY ai-service/pom.xml ./ai-service/pom.xml
+COPY ai-service/src ./ai-service/src
+RUN mvn -f ai-service/pom.xml -q -DskipTests install
+
+# 2. Build doc-service (resolves the com.docservice:* libraries from the local repo).
+COPY doc-service/pom.xml ./doc-service/pom.xml
+RUN mvn -f doc-service/pom.xml dependency:go-offline -q
+COPY doc-service/src ./doc-service/src
+RUN mvn -f doc-service/pom.xml package -DskipTests -q
 
 FROM eclipse-temurin:21-jre-jammy
 
@@ -24,7 +34,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY --from=builder /build/target/*.jar app.jar
+COPY --from=builder /build/doc-service/target/*.jar app.jar
 
 ENV LATEX_COMPILER=native
 

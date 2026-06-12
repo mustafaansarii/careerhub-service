@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
     PAGE_W, PAGE, GAP, STRIDE, MARGIN,
@@ -7,6 +7,8 @@ import {
     AddButton, RemoveButton,
 } from './shared';
 import userService from '../services/user.service';
+import paymentService from '../services/payment.service';
+import PricingModal from '../components/payment/PricingModal';
 
 const ITEM_MARGIN = { exp: 'mb-4', edu: 'mb-3', courses: 'mb-1.5', pair: 'mb-1', simple: 'mb-1' };
 
@@ -41,6 +43,8 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
     const [adding, setAdding] = useState(false);
     const [saving, setSaving] = useState(false);
     const [panel, setPanel] = useState(null);
+    const [pricingOpen, setPricingOpen] = useState(false);
+    const navigate = useNavigate();
     const [settings, setSettings] = useState(() => ({
         margin: MARGIN, spacing: 24, fontSize: 14, lineHeight: 1.2, fontFamily: '', accent: design.accent || '#0f766e',
     }));
@@ -133,13 +137,20 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
     };
 
     const download = async () => {
-        if (authed) {
-            setSaving(true);
-            try { await userService.updateProfile(resumeToProfile(resume)); }
-            catch {}
-            finally { setSaving(false); }
+        if (!authed) {
+            toast.error('Sign in to download your resume');
+            navigate('/login');
+            return;
         }
-        window.print();
+        setSaving(true);
+        try { await userService.updateProfile(resumeToProfile(resume)); } catch { /* ignore */ } finally { setSaving(false); }
+        let entitlement = null;
+        try { entitlement = await paymentService.getEntitlement(); } catch { /* treat as free */ }
+        if (entitlement?.active) {
+            window.print();
+        } else {
+            setPricingOpen(true);
+        }
     };
 
     const renderBody = (type) => {

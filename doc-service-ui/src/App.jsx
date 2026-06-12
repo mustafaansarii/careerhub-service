@@ -18,6 +18,7 @@ import PricingPage from './pages/pricing';
 import DocTemplates from './pages/DocTemplates';
 import MyTemplates from './pages/MyTemplates';
 import SettingsPage from './pages/SettingsPage';
+import ResumeUploadPrompt from './components/profile/ResumeUploadPrompt';
 
 function App() {
   const location = useLocation();
@@ -46,6 +47,7 @@ function App() {
           },
         }}
       />
+      <ResumeUploadPrompt />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />

@@ -3,6 +3,8 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import toast from 'react-hot-toast';
 import docService from '../services/doc.service';
+import paymentService from '../services/payment.service';
+import PricingModal from '../components/payment/PricingModal';
 
 export default function DocEditor() {
     const { id } = useParams();
@@ -15,6 +17,8 @@ export default function DocEditor() {
     const [code, setCode] = useState(prefetched?.latexCode || '');
     const [pdfUrl, setPdfUrl] = useState(prefetched?.pdfUrl || '');
     const [compiling, setCompiling] = useState(false);
+    const [downloading, setDownloading] = useState(false);
+    const [pricingOpen, setPricingOpen] = useState(false);
     const blobUrlRef = useRef(null);
     const handleCompileRef = useRef(null);
 
@@ -80,6 +84,31 @@ export default function DocEditor() {
 
     handleCompileRef.current = handleCompile;
 
+    const handleDownload = async () => {
+        if (downloading) return;
+        setDownloading(true);
+        try {
+            const blob = await paymentService.unlockDoc(id);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${doc?.name ?? 'document'}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+            toast.success('Downloaded');
+        } catch (err) {
+            if (err?.response?.status === 402) {
+                setPricingOpen(true);
+            } else {
+                toast.error(err?.response?.data?.message || 'Download failed');
+            }
+        } finally {
+            setDownloading(false);
+        }
+    };
+
     return (
         <div className="flex flex-col bg-slate-950 h-screen">
 
@@ -132,18 +161,23 @@ export default function DocEditor() {
                 </div>
 
                 <div className="flex justify-end">
-                    {pdfUrl && (
-                        <a
-                            href={pdfUrl}
-                            download={`${doc?.name ?? 'document'}.pdf`}
-                            className="flex items-center gap-1 rounded px-1.5 py-1 text-xs text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
-                        >
+                    <button
+                        onClick={handleDownload}
+                        disabled={downloading || loadingDoc}
+                        title="Download PDF (uses one credit)"
+                        className="flex items-center gap-1 rounded px-1.5 py-1 text-xs text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                        {downloading ? (
+                            <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round" />
+                            </svg>
+                        ) : (
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
                             </svg>
-                            Download
-                        </a>
-                    )}
+                        )}
+                        Download
+                    </button>
                 </div>
             </div>
 
@@ -210,6 +244,13 @@ export default function DocEditor() {
                     </div>
                 </div>
             </div>
+
+            <PricingModal
+                open={pricingOpen}
+                onClose={() => setPricingOpen(false)}
+                onSuccess={() => { setPricingOpen(false); handleDownload(); }}
+                title="Upgrade to download this resume"
+            />
         </div>
     );
 }

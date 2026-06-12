@@ -47,6 +47,10 @@ public class UserDocDtoApi extends AbstractDtoUtil {
         return userDocService.compileAndUpdate(ownerEmail, id, request.getLatexCode());
     }
 
+    public byte[] unlock(String ownerEmail, Long id) {
+        return userDocService.unlockAndCompile(ownerEmail, id);
+    }
+
     private UserDocMetadata toMetadata(UserDoc doc) {
         return UserDocMetadata.builder()
                 .id(doc.getId())

@@ -35,6 +35,12 @@ public class UserDocService {
     @Autowired
     private ResumeDataResolver resumeDataResolver;
 
+    @Autowired
+    private EntitlementService entitlementService;
+
+    @Autowired
+    private WatermarkService watermarkService;
+
     @Transactional
     public UserDoc saveTemplateToAccount(String ownerEmail, Long templateId) {
         DocTemplate template = docTemplateRepository.findById(templateId)
@@ -72,14 +78,30 @@ public class UserDocService {
     public byte[] compileAndUpdate(String ownerEmail, Long id, String latexCode) {
         UserDoc doc = getOwned(ownerEmail, id);
         doc.setLatexCode(latexCode);
+        return renderAndStore(doc, ownerEmail);
+    }
+
+    @Transactional
+    public byte[] unlockAndCompile(String ownerEmail, Long id) {
+        UserDoc doc = getOwned(ownerEmail, id);
+        if (!entitlementService.unlock(ownerEmail, id)) {
+            throw ApiException.paymentRequired("Upgrade your plan to download this resume");
+        }
+        return renderAndStore(doc, ownerEmail);
+    }
+
+    private byte[] renderAndStore(UserDoc doc, String ownerEmail) {
         try {
-            byte[] pdf = latexCompiler.compile(latexCode);
-            String url = storageService.upload(pdf, "user-docs/" + doc.getId() + ".pdf", "application/pdf");
+            byte[] compiled = latexCompiler.compile(doc.getLatexCode());
+            byte[] output = entitlementService.isUnlocked(ownerEmail, doc.getId())
+                    ? compiled
+                    : watermarkService.addPreviewWatermark(compiled);
+            String url = storageService.upload(output, "user-docs/" + doc.getId() + ".pdf", "application/pdf");
             doc.setPdfUrl(url);
             doc.setStatus(DocTemplateStatus.READY);
             doc.setErrorMessage(null);
             userDocRepository.save(doc);
-            return pdf;
+            return output;
         } catch (ApiException exception) {
             doc.setStatus(DocTemplateStatus.FAILED);
             doc.setErrorMessage(truncate(exception.getMessage()));

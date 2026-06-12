@@ -12,3 +12,10 @@ POST,/api/user-docs,USER|ADMIN
 GET,/api/user-docs,USER|ADMIN
 GET,/api/user-docs/*,USER|ADMIN
 PATCH,/api/user-docs/*/compile,USER|ADMIN
+POST,/api/user-docs/*/unlock,USER|ADMIN
+GET,/api/me/entitlement,USER|ADMIN
+POST,/api/payments/create-order,USER|ADMIN
+POST,/api/payments/verify,USER|ADMIN
+POST,/api/payments/webhook,PUBLIC
+POST,/api/ai/generate,USER|ADMIN
+POST,/api/profile/import-resume,USER|ADMIN

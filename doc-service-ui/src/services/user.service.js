@@ -21,6 +21,16 @@ class UserService {
     return response.data;
   }
 
+  async importResume(file) {
+    const form = new FormData();
+    form.append('file', file);
+    const response = await axiosInstance.post('/careerhub/api/profile/import-resume', form, {
+      baseURL: '',
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  }
+
   async deleteAccount() {
     const response = await axiosInstance.delete('/careerhub/api/auth/delete-account', { baseURL: '' });
     return response.data;
