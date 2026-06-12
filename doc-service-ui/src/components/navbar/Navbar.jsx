@@ -36,10 +36,10 @@ const navItems = [
                 {
                     kind: 'cards',
                     items: [
-                        { icon: 'grid', title: 'Resume Templates', desc: 'Recruiter-approved designs', to: '/templates?type=CV_AND_RESUME&page=1&size=10' },
-                        { icon: 'folder', title: 'Explore Doc Templates', desc: 'Browse every document design', to: '/templates?type=CV_AND_RESUME&page=1&size=10' },
-                        { icon: 'mail', title: 'My Templates', desc: 'Resumes saved to your account', to: '/my-templates?type=CV_AND_RESUME&page=1&size=10' },
-                        { icon: 'builder', title: 'Build your resume', desc: 'Create with live preview', to: '/templates?type=CV_AND_RESUME&page=1&size=20' },
+                        { icon: 'grid', title: 'Resume Templates', desc: 'Recruiter-approved designs', to: '/templates' },
+                        { icon: 'folder', title: 'Explore Doc Templates', desc: 'Browse every document design', to: '/templates' },
+                        { icon: 'mail', title: 'My Templates', desc: 'Resumes saved to your account', to: '/my-templates' },
+                        { icon: 'builder', title: 'Build your resume', desc: 'Create with live preview', to: '/templates' },
                     ],
                 },
                 {
@@ -53,7 +53,7 @@ const navItems = [
                     ],
                 },
             ],
-            promo: { title: 'Free, ATS-friendly resume builder', desc: 'Build and download in minutes — no account needed.', cta: 'Build your resume', to: '/templates?type=CV_AND_RESUME&page=1&size=20' },
+            promo: { title: 'Free, ATS-friendly resume builder', desc: 'Build and download in minutes — no account needed.', cta: 'Build your resume', to: '/templates' },
         },
     },
     {
