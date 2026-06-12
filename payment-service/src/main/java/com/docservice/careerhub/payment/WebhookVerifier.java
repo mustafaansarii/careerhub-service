@@ -1,5 +1,7 @@
 package com.docservice.careerhub.payment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import java.util.Objects;
 
 @Service
 public class WebhookVerifier {
+
+    private static final Logger logger = LoggerFactory.getLogger(WebhookVerifier.class);
 
     private static final String HMAC_ALGORITHM = "HmacSHA256";
 
@@ -30,6 +34,7 @@ public class WebhookVerifier {
             String computed = Base64.getEncoder().encodeToString(hash);
             return MessageDigest.isEqual(computed.getBytes(StandardCharsets.UTF_8), signature.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
+            logger.error("Webhook signature verification threw an exception", e);
             return false;
         }
     }

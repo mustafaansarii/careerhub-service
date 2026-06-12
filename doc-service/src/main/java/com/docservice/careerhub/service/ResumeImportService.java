@@ -11,6 +11,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ import java.util.Objects;
 
 @Service
 public class ResumeImportService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ResumeImportService.class);
 
     private static final double EXTRACT_TEMPERATURE = 0.2;
 
@@ -83,6 +87,7 @@ public class ResumeImportService {
         try (PDDocument document = Loader.loadPDF(file.getBytes())) {
             return new PDFTextStripper().getText(document);
         } catch (Exception e) {
+            logger.error("PDF text extraction failed", e);
             throw ApiException.badData("Failed to read the PDF: " + e.getMessage());
         }
     }
@@ -92,6 +97,7 @@ public class ResumeImportService {
              XWPFWordExtractor extractor = new XWPFWordExtractor(document)) {
             return extractor.getText();
         } catch (Exception e) {
+            logger.error("DOCX text extraction failed", e);
             throw ApiException.badData("Failed to read the DOCX: " + e.getMessage());
         }
     }
@@ -100,6 +106,7 @@ public class ResumeImportService {
         try {
             return new String(file.getBytes(), StandardCharsets.UTF_8);
         } catch (Exception e) {
+            logger.error("File text extraction failed", e);
             throw ApiException.badData("Failed to read the file: " + e.getMessage());
         }
     }
@@ -112,6 +119,7 @@ public class ResumeImportService {
         try {
             return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() { });
         } catch (Exception e) {
+            logger.error("AI resume parsing failed", e);
             throw ApiException.badData("Could not turn that file into profile data. Please try a clearer resume file.");
         }
     }
@@ -151,6 +159,7 @@ public class ResumeImportService {
         try {
             authService.updateProfile(ownerEmail, objectMapper.writeValueAsString(profile));
         } catch (Exception e) {
+            logger.error("Saving imported profile failed", e);
             throw new RuntimeException("Failed to save the imported profile", e);
         }
     }

@@ -1,5 +1,7 @@
 package com.docservice.careerhub.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -18,6 +20,8 @@ import java.util.Objects;
 
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomOAuth2UserService.class);
 
     private static final String GITHUB = "github";
     private static final String EMAIL = "email";
@@ -77,6 +81,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
             return firstVerified;
         } catch (Exception exception) {
+            logger.error("OAuth2 user processing failed", exception);
             return null;
         }
     }

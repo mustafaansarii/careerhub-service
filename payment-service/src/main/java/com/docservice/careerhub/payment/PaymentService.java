@@ -1,5 +1,7 @@
 package com.docservice.careerhub.payment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -12,6 +14,8 @@ import java.util.Objects;
 
 @Service
 public class PaymentService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
     // Cashfree API endpoints
     private static final String PRODUCTION_BASE_URL = "https://api.cashfree.com/pg";
@@ -120,7 +124,7 @@ public class PaymentService {
                 return new PaymentInfo(asString(firstPayment.get(FIELD_PAYMENT_METHOD)), asDouble(firstPayment.get(FIELD_PAYMENT_AMOUNT)));
             }
         } catch (Exception ignored) {
-            // payment details are best-effort
+            logger.warn("Failed to fetch/parse Cashfree payment details: {}", ignored.getMessage());
         }
         return new PaymentInfo(null, null);
     }

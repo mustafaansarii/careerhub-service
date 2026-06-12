@@ -2,6 +2,8 @@ package com.docservice.careerhub.service;
 
 import com.docservice.careerhub.config.AppProperties;
 import com.docservice.careerhub.exception.ApiException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,8 @@ import org.springframework.web.client.RestClientException;
 
 @Service
 public class SupabaseStorageService implements StorageService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SupabaseStorageService.class);
 
     private final RestClient restClient = RestClient.create();
 
@@ -31,6 +35,7 @@ public class SupabaseStorageService implements StorageService {
                     .retrieve()
                     .toBodilessEntity();
         } catch (RestClientException exception) {
+            logger.error("Supabase upload failed for {}: {}", objectPath, exception.getMessage(), exception);
             throw ApiException.badData("Failed to upload PDF to storage: " + exception.getMessage());
         }
         return base + "/storage/v1/object/public/" + bucket + "/" + objectPath;

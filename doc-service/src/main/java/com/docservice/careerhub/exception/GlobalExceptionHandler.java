@@ -16,6 +16,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApiException(ApiException exception) {
         HttpStatus status = exception.getStatus();
+        if (status.is5xxServerError()) {
+            LOGGER.error("API error {}: {}", status.value(), exception.getMessage(), exception);
+        } else {
+            LOGGER.warn("API error {}: {}", status.value(), exception.getMessage());
+        }
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(status.value(), status.getReasonPhrase(), exception.getMessage()));
     }

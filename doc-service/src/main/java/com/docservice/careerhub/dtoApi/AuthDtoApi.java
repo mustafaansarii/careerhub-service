@@ -13,6 +13,8 @@ import com.docservice.careerhub.util.AbstractDtoUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
@@ -23,6 +25,8 @@ import java.util.Objects;
 
 @Component
 public class AuthDtoApi extends AbstractDtoUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthDtoApi.class);
 
     @Autowired
     private AuthService authService;
@@ -65,6 +69,7 @@ public class AuthDtoApi extends AbstractDtoUtil {
         try {
             json = objectMapper.writeValueAsString(profile == null ? Map.of() : profile);
         } catch (Exception e) {
+            logger.error("Failed to serialize profile data", e);
             throw ApiException.badData("Invalid profile data");
         }
         return toUserResponse(authService.updateProfile(authentication.getName(), json));
@@ -76,7 +81,7 @@ public class AuthDtoApi extends AbstractDtoUtil {
             try {
                 profile = objectMapper.readValue(user.getProfileData(), Object.class);
             } catch (Exception ignored) {
-
+                logger.warn("Could not parse stored profileData for user {}", user.getEmail());
             }
         }
         return UserResponse.builder()

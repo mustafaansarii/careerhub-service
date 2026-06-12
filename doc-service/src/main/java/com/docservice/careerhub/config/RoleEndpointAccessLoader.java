@@ -1,6 +1,8 @@
 package com.docservice.careerhub.config;
 
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Component
 public class RoleEndpointAccessLoader {
+
+    private static final Logger logger = LoggerFactory.getLogger(RoleEndpointAccessLoader.class);
 
     private static final String CSV_PATH = "user-roles.csv";
     private static final String HEADER_PREFIX = "method,";
@@ -42,6 +46,7 @@ public class RoleEndpointAccessLoader {
                 rules.add(new AccessRule(method, pattern, roles));
             }
         } catch (Exception exception) {
+            logger.error("Failed to load access rules from {}", CSV_PATH, exception);
             throw new IllegalStateException("Failed to load access rules from " + CSV_PATH, exception);
         }
     }
