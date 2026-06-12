@@ -24,12 +24,16 @@ export default function DocEditor() {
     const handleCompileRef = useRef(null);
 
     useEffect(() => {
-        if (prefetched) return;
+        if (prefetched) {
+            setLocked(!prefetched.unlocked);
+            return;
+        }
         docService.getUserDoc(id)
             .then((data) => {
                 setDoc(data);
                 setCode(data.latexCode || '');
                 setPdfUrl(data.pdfUrl || '');
+                setLocked(!data.unlocked);
             })
             .catch(() => toast.error('Failed to load document'))
             .finally(() => setLoadingDoc(false));
@@ -39,12 +43,6 @@ export default function DocEditor() {
         return () => {
             if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
         };
-    }, []);
-
-    useEffect(() => {
-        paymentService.getEntitlement()
-            .then((e) => setLocked(!e?.active))
-            .catch(() => setLocked(true));
     }, []);
 
     const editorContainerRef = useRef(null);
@@ -104,6 +102,7 @@ export default function DocEditor() {
             link.click();
             link.remove();
             URL.revokeObjectURL(url);
+            setLocked(false);
             toast.success('Downloaded');
         } catch (err) {
             if (err?.response?.status === 402) {

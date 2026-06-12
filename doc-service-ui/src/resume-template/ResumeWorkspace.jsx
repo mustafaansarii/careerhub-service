@@ -7,7 +7,6 @@ import {
     AddButton, RemoveButton,
 } from './shared';
 import userService from '../services/user.service';
-import paymentService from '../services/payment.service';
 import docService from '../services/doc.service';
 import PricingModal from '../components/payment/PricingModal';
 
@@ -46,14 +45,15 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
     const [panel, setPanel] = useState(null);
     const [pricingOpen, setPricingOpen] = useState(false);
     const [locked, setLocked] = useState(true);
+    const [docId, setDocId] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!authed) { setLocked(true); return; }
-        paymentService.getEntitlement()
-            .then((e) => setLocked(!e?.active))
+        docService.openByTemplate(design.code)
+            .then((doc) => { setDocId(doc.id); setLocked(!doc.unlocked); })
             .catch(() => setLocked(true));
-    }, [authed]);
+    }, [authed, design.code]);
     const [settings, setSettings] = useState(() => ({
         margin: MARGIN, spacing: 24, fontSize: 14, lineHeight: 1.2, fontFamily: '', accent: design.accent || '#0f766e',
     }));

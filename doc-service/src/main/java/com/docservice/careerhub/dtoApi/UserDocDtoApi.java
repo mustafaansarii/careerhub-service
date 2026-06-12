@@ -8,6 +8,7 @@ import com.docservice.careerhub.dto.response.PageResponse;
 import com.docservice.careerhub.dto.response.UserDocMetadata;
 import com.docservice.careerhub.dto.response.UserDocResponse;
 import com.docservice.careerhub.entity.UserDoc;
+import com.docservice.careerhub.service.EntitlementService;
 import com.docservice.careerhub.service.UserDocService;
 import com.docservice.careerhub.util.AbstractDtoUtil;
 import com.docservice.careerhub.util.PageUtil;
@@ -26,13 +27,16 @@ public class UserDocDtoApi extends AbstractDtoUtil {
     @Autowired
     private UserDocService userDocService;
 
+    @Autowired
+    private EntitlementService entitlementService;
+
     public UserDocResponse save(String ownerEmail, SaveUserDocRequest request) {
         validate(request);
-        return toResponse(userDocService.saveTemplateToAccount(ownerEmail, request.getTemplateId()));
+        return toResponse(ownerEmail, userDocService.saveTemplateToAccount(ownerEmail, request.getTemplateId()));
     }
 
     public UserDocResponse openByTemplate(String ownerEmail, String templateCode) {
-        return toResponse(userDocService.openByTemplateCode(ownerEmail, templateCode));
+        return toResponse(ownerEmail, userDocService.openByTemplateCode(ownerEmail, templateCode));
     }
 
     public void claim(String ownerEmail, Long id) {
@@ -47,7 +51,7 @@ public class UserDocDtoApi extends AbstractDtoUtil {
     }
 
     public UserDocResponse get(String ownerEmail, Long id) {
-        return toResponse(userDocService.getOwned(ownerEmail, id));
+        return toResponse(ownerEmail, userDocService.getOwned(ownerEmail, id));
     }
 
     public byte[] compileAndUpdate(String ownerEmail, Long id, CompileDocRequest request) {
@@ -75,7 +79,7 @@ public class UserDocDtoApi extends AbstractDtoUtil {
                 .build();
     }
 
-    private UserDocResponse toResponse(UserDoc doc) {
+    private UserDocResponse toResponse(String ownerEmail, UserDoc doc) {
         return UserDocResponse.builder()
                 .id(doc.getId())
                 .sourceTemplateId(doc.getSourceTemplateId())
@@ -87,6 +91,7 @@ public class UserDocDtoApi extends AbstractDtoUtil {
                 .pdfUrl(doc.getPdfUrl())
                 .imageUrl(doc.getImageUrl())
                 .errorMessage(doc.getErrorMessage())
+                .unlocked(entitlementService.isUnlocked(ownerEmail, doc.getId()))
                 .createdAt(doc.getCreatedAt())
                 .updatedAt(doc.getUpdatedAt())
                 .build();

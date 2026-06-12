@@ -107,7 +107,7 @@ public class UserDocService {
     public byte[] compileAndUpdate(String ownerEmail, Long id, String latexCode) {
         UserDoc doc = getOwned(ownerEmail, id);
         doc.setLatexCode(latexCode);
-        return renderAndStore(doc, entitlementService.hasActivePlan(ownerEmail));
+        return renderAndStore(doc, entitlementService.isUnlocked(ownerEmail, id));
     }
 
     @Transactional
