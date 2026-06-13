@@ -30,17 +30,14 @@ export default function Footer() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
                     <div className="space-y-3 col-span-2 md:col-span-1">
-                        <Link to="/" className="flex items-center gap-2">
-                            <BrandLogo height={38} />
-                            <span className="text-lg font-medium tracking-[0.14em] text-white">
-                                CareerHub
-                            </span>
+                        <Link to="/" className="flex items-center">
+                            <BrandLogo height={34} />
                         </Link>
                     <p className="text-sm sm:text-slate-300 text-slate-900 max-w-xs">
                             Build ATS-friendly resumes and documents in minutes.
                         </p>
                         <p className="hidden text-sm text-slate-400 md:block">
-                            © {new Date().getFullYear()} CareerHub. All rights reserved.
+                            © {new Date().getFullYear()} MyCV. All rights reserved.
                         </p>
                     </div>
 
@@ -67,7 +64,7 @@ export default function Footer() {
                     ))}
                 </div>
                 <p className="mt-4 -mb-8 text-center text-sm text-slate-400 md:hidden">
-                    © {new Date().getFullYear()} CareerHub. All rights reserved.
+                    © {new Date().getFullYear()} MyCV. All rights reserved.
                 </p>
             </div>
             </div>

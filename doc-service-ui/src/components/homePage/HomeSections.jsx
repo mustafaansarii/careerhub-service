@@ -55,10 +55,10 @@ const REVIEWS = [
 ];
 
 const FAQS = [
-    { q: 'Is CareerHub free to use?', a: 'Yes. You can build a resume, fill in your details, and download a PDF for free — no payment required to get a finished, recruiter-ready document.' },
+    { q: 'Is MyCV free to use?', a: 'Yes. You can build a resume, fill in your details, and download a PDF for free — no payment required to get a finished, recruiter-ready document.' },
     { q: 'Do I need an account to build a resume?', a: 'No. You can open the resume builder and download a PDF without signing in. Creating an account simply lets us save your details and reuse them next time.' },
     { q: 'What is the difference between the form editor and the LaTeX editor?', a: 'The form editor is the default — you fill in structured fields and see a live preview, no coding needed. The LaTeX editor is for advanced users who want to tweak the raw LaTeX of the same template. Use the ⋯ menu on any template to switch.' },
-    { q: 'Are CareerHub resumes ATS-friendly?', a: 'Yes. Every template uses clean, single-column-friendly layouts with standard section headings and readable fonts, so applicant tracking systems can parse your name, experience, and skills without dropping content.' },
+    { q: 'Are MyCV resumes ATS-friendly?', a: 'Yes. Every template uses clean, single-column-friendly layouts with standard section headings and readable fonts, so applicant tracking systems can parse your name, experience, and skills without dropping content.' },
     { q: 'How do I download my resume as a PDF?', a: 'Click “Download PDF” in the builder. It produces a crisp, multi-page US-Letter PDF with proper margins — page breaks fall between sections so nothing gets cut in half.' },
     { q: 'Can I edit my resume after I have started?', a: 'Of course. Edit any field inline, drag headings to reorder sections, add or remove sections, and re-download anytime. If you are signed in, your edits are saved back to your account on download.' },
     { q: 'Will my saved details pre-fill the builder?', a: 'Yes. Once you add your details under Profile → Resume details, every template you open is automatically pre-filled with your information. If you have not added anything yet, the form shows example content you can replace.' },
@@ -99,7 +99,7 @@ function FaqSection() {
             <div className="mx-auto max-w-3xl px-4 py-24 sm:px-6 lg:px-8">
                 <MotionDiv variants={fadeUp} initial="hidden" whileInView="show" viewport={viewport} className="text-center">
                     <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Frequently asked questions</h2>
-                    <p className="mt-4 text-base text-slate-500 dark:text-slate-400">Everything you need to know about building documents with CareerHub.</p>
+                    <p className="mt-4 text-base text-slate-500 dark:text-slate-400">Everything you need to know about building documents with MyCV.</p>
                 </MotionDiv>
                 <div className="mt-12 space-y-3">
                     {FAQS.map((item, i) => (
@@ -176,7 +176,7 @@ export default function HomeSections() {
                             Chosen by <span className="text-teal-600 dark:text-teal-400">thousands</span> of job applicants worldwide
                         </h2>
                         <p className="mt-5 text-base leading-relaxed text-slate-500 dark:text-slate-400">
-                            CareerHub is a document builder that helps you create applications with impact and professionalism — trusted at every step of the job hunt to emphasize your experience, value, and skills.
+                            MyCV is a document builder that helps you create applications with impact and professionalism — trusted at every step of the job hunt to emphasize your experience, value, and skills.
                         </p>
                         <p className="mt-4 text-base leading-relaxed text-slate-500 dark:text-slate-400">
                             We pair flexible, ATS-friendly templates with an intuitive editor and a live PDF preview, so you can present a complete, polished application in minutes.

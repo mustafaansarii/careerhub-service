@@ -1,15 +1,74 @@
+export default function BrandLogo({ height = 60, className = "" }) {
+  return (
+    <svg
+      width={height * 5}
+      height={height}
+      viewBox="0 0 1000 200"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      fill="none"
+    >
+      {/* Document Icon */}
+      <g transform="translate(10,25)">
+        <path
+          d="M20 0 H90 L120 30 V150 H20 Z"
+          stroke="currentColor"
+          strokeWidth="4"
+          fill="none"
+          strokeLinejoin="round"
+        />
 
-export default function BrandLogo({ height = 40, className = '' }) {
-    return (
-        <svg height={height} viewBox="0 0 900 760" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className={`shrink-0 ${className}`}>
-            <g stroke="white" strokeLinecap="round" strokeLinejoin="round" fill="none">
+        <path
+          d="M90 0 V30 H120"
+          stroke="currentColor"
+          strokeWidth="4"
+          fill="none"
+          strokeLinejoin="round"
+        />
 
-                <path d="M372 232 A206 206 0 1 0 372 568" strokeWidth="28" />
+        <line
+          x1="40"
+          y1="55"
+          x2="100"
+          y2="55"
+          stroke="currentColor"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
 
-                <path d="M488 212 L650 576 L812 212" strokeWidth="28" />
+        <line
+          x1="40"
+          y1="85"
+          x2="100"
+          y2="85"
+          stroke="currentColor"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
 
-                <path d="M572 252 L650 452 L728 252" strokeWidth="12" />
-            </g>
-        </svg>
-    );
+        <line
+          x1="40"
+          y1="115"
+          x2="80"
+          y2="115"
+          stroke="currentColor"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
+      </g>
+
+      {/* MyCV Text */}
+      <text
+        x="170"
+        y="145"
+        fontSize="140"
+        fontWeight="100"
+        fontFamily="Inter, Poppins, Arial, sans-serif"
+        letterSpacing="-2"
+        fill="currentColor"
+      >
+        MyCV
+      </text>
+    </svg>
+  );
 }

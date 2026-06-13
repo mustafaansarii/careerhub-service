@@ -21,7 +21,7 @@ export default function RefundPolicyPage() {
                 <PageHero
                     breadcrumb="Legal"
                     title="Cancellation & Refund Policy"
-                    description="How cancellations and refunds work for purchases on CareerHub."
+                    description="How cancellations and refunds work for purchases on MyCV."
                 />
             </div>
 
@@ -29,7 +29,7 @@ export default function RefundPolicyPage() {
                 <p className="text-sm text-slate-400">Last updated on 13 June 2026</p>
 
                 <p className="mt-6 text-sm leading-relaxed text-slate-700">
-                    CareerHub provides a digital resume- and document-building service. Plans are one-time
+                    MyCV provides a digital resume- and document-building service. Plans are one-time
                     purchases that unlock resume downloads and are valid for one year. Because the service is
                     digital and delivered instantly, the following cancellation and refund terms apply:
                 </p>

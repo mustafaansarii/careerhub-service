@@ -21,7 +21,7 @@ export default function TermsPage() {
                 <PageHero
                     breadcrumb="Legal"
                     title="Terms & Conditions"
-                    description="The terms that govern your use of CareerHub."
+                    description="The terms that govern your use of MyCV."
                 />
             </div>
 
@@ -29,8 +29,8 @@ export default function TermsPage() {
                 <p className="text-sm text-slate-400">Last updated on 13-06-2026</p>
 
                 <p className="mt-6 text-sm leading-relaxed text-slate-700">
-                    These Terms &amp; Conditions (&ldquo;Terms&rdquo;) govern your access to and use of CareerHub
-                    (the &ldquo;Service&rdquo;), operated by CareerHub (&ldquo;we&rdquo;,
+                    These Terms &amp; Conditions (&ldquo;Terms&rdquo;) govern your access to and use of MyCV
+                    (the &ldquo;Service&rdquo;), operated by MyCV (&ldquo;we&rdquo;,
                     &ldquo;us&rdquo;, &ldquo;our&rdquo;). By creating an account or using the Service, you agree
                     to these Terms. If you do not agree, please do not use the Service.
                 </p>
@@ -45,7 +45,7 @@ export default function TermsPage() {
 
                 <Section title="2. The Service">
                     <p>
-                        CareerHub lets you build, edit and download resumes and related documents. You retain
+                        MyCV lets you build, edit and download resumes and related documents. You retain
                         ownership of the content you enter. We do not claim ownership of your resume data.
                     </p>
                 </Section>

@@ -9,14 +9,9 @@ export default function MinimalNavbar() {
             <nav className="mx-auto flex h-14 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
                 <button
                     onClick={() => navigate('/')}
-                    className="group flex items-center gap-3 outline-none"
+                    className="group flex items-center outline-none"
                 >
-
-                    <BrandLogo height={40} />
-
-                    <span className="text-base text-white font-medium tracking-widest">
-                        CareerHub
-                    </span>
+                    <BrandLogo height={34} />
                 </button>
             </nav>
         </header>

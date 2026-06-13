@@ -58,7 +58,7 @@ export default function AuthLoginPage() {
             <OAuthButtons />
 
             <p className="mt-5 text-center text-[11px] text-slate-500 dark:text-slate-400">
-                New to CareerHub?{' '}
+                New to MyCV?{' '}
                 <button type="button" className="font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700" onClick={() => navigate('/signup')}>
                     Create an account
                 </button>

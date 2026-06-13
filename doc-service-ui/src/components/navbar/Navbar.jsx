@@ -507,11 +507,8 @@ export default function Navbar() {
             <nav className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
 
                 <div className="flex flex-1 items-center">
-                    <button onClick={() => navigate('/')} className="group flex items-center gap-2.5 outline-none">
-                        <BrandLogo height={38} />
-                        <span className="text-lg font-medium tracking-[0.14em] text-white transition-opacity group-hover:opacity-90">
-                            CareerHub
-                        </span>
+                    <button onClick={() => navigate('/')} className="group flex items-center outline-none">
+                        <BrandLogo height={34} className="transition-opacity group-hover:opacity-90" />
                     </button>
                 </div>
 
