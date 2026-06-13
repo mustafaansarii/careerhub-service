@@ -97,7 +97,7 @@ public class UserDocDtoApi extends AbstractDtoUtil {
                 .pdfUrl(doc.getPdfUrl())
                 .imageUrl(doc.getImageUrl())
                 .errorMessage(doc.getErrorMessage())
-                .unlocked(entitlementService.isUnlocked(ownerEmail, doc.getId()))
+                .unlocked(entitlementService.isUnlocked(ownerEmail, doc.resumeKey()))
                 .createdAt(doc.getCreatedAt())
                 .updatedAt(doc.getUpdatedAt())
                 .build();

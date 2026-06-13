@@ -59,8 +59,8 @@ public class UserDocService {
 
     @Transactional
     public void claim(String ownerEmail, Long id) {
-        getOwned(ownerEmail, id);
-        if (!entitlementService.unlock(ownerEmail, id)) {
+        UserDoc doc = getOwned(ownerEmail, id);
+        if (!entitlementService.unlock(ownerEmail, doc.resumeKey())) {
             throw ApiException.paymentRequired("Upgrade your plan to download this resume");
         }
     }
@@ -119,13 +119,13 @@ public class UserDocService {
     public byte[] compileAndUpdate(String ownerEmail, Long id, String latexCode) {
         UserDoc doc = getOwned(ownerEmail, id);
         doc.setLatexCode(latexCode);
-        return renderAndStore(doc, entitlementService.isUnlocked(ownerEmail, id));
+        return renderAndStore(doc, entitlementService.isUnlocked(ownerEmail, doc.resumeKey()));
     }
 
     @Transactional
     public byte[] unlockAndCompile(String ownerEmail, Long id) {
         UserDoc doc = getOwned(ownerEmail, id);
-        if (!entitlementService.unlock(ownerEmail, id)) {
+        if (!entitlementService.unlock(ownerEmail, doc.resumeKey())) {
             throw ApiException.paymentRequired("Upgrade your plan to download this resume");
         }
         return renderAndStore(doc, true);

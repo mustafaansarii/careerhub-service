@@ -78,7 +78,7 @@ public class EntitlementService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isUnlocked(String ownerEmail, Long docId) {
+    public boolean isUnlocked(String ownerEmail, String resumeKey) {
         if (isAdmin()) {
             return true;
         }
@@ -86,11 +86,11 @@ public class EntitlementService {
         if (!isActive(subscription)) {
             return false;
         }
-        return subscription.getCreditsRemaining() == null || subscription.getUnlockedDocIds().contains(docId);
+        return subscription.getCreditsRemaining() == null || subscription.getUnlockedTemplateCodes().contains(resumeKey);
     }
 
     @Transactional
-    public boolean unlock(String ownerEmail, Long docId) {
+    public boolean unlock(String ownerEmail, String resumeKey) {
         if (isAdmin()) {
             return true;
         }
@@ -98,14 +98,14 @@ public class EntitlementService {
         if (!isActive(subscription)) {
             return false;
         }
-        if (subscription.getUnlockedDocIds().contains(docId)) {
+        if (subscription.getUnlockedTemplateCodes().contains(resumeKey)) {
             return true;
         }
         boolean unlimited = subscription.getCreditsRemaining() == null;
         if (!unlimited && subscription.getCreditsRemaining() <= 0) {
             return false;
         }
-        subscription.getUnlockedDocIds().add(docId);
+        subscription.getUnlockedTemplateCodes().add(resumeKey);
         if (!unlimited) {
             subscription.setCreditsRemaining(subscription.getCreditsRemaining() - 1);
         }

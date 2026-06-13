@@ -76,4 +76,8 @@ public class UserDoc {
     void onUpdate() {
         updatedAt = Instant.now();
     }
+
+    public String resumeKey() {
+        return templateCode != null ? templateCode : "doc-" + id;
+    }
 }

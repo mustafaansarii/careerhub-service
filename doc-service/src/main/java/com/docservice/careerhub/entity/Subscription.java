@@ -39,13 +39,12 @@ public class Subscription {
 
     private Instant validUntil;
 
-    /** Resume-unlock credits left; null = unlimited. */
     private Integer creditsRemaining;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "subscription_unlocked_docs", joinColumns = @JoinColumn(name = "subscription_id"))
-    @Column(name = "doc_id")
-    private Set<Long> unlockedDocIds = new HashSet<>();
+    @CollectionTable(name = "subscription_unlocked_templates", joinColumns = @JoinColumn(name = "subscription_id"))
+    @Column(name = "template_code")
+    private Set<String> unlockedTemplateCodes = new HashSet<>();
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
