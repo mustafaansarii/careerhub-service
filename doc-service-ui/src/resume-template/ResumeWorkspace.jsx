@@ -147,9 +147,9 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
         sheetRef.current?.querySelectorAll('a:not([target])').forEach((a) => { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
     };
 
-    const download = async () => {
+    const unlock = async () => {
         if (!authed) {
-            toast.error('Sign in to download your resume');
+            toast.error('Sign in to unlock your resume');
             navigate('/login');
             return;
         }
@@ -157,18 +157,34 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
         try { await userService.updateProfile(resumeToProfile(resume)); } catch { /* ignore */ }
         try {
             const doc = await docService.openByTemplate(design.code);
+            setDocId(doc.id);
             await docService.claim(doc.id);
             setLocked(false);
-            window.print();
+            toast.success('Resume unlocked — you can download it now');
         } catch (err) {
             if (err?.response?.status === 402) {
                 setPricingOpen(true);
             } else {
-                toast.error(err?.response?.data?.message || 'Could not prepare your download');
+                toast.error(err?.response?.data?.message || 'Could not unlock this resume');
             }
         } finally {
             setSaving(false);
         }
+    };
+
+    const download = async () => {
+        if (!authed) {
+            toast.error('Sign in to download your resume');
+            navigate('/login');
+            return;
+        }
+        if (locked) {
+            unlock();
+            return;
+        }
+        setSaving(true);
+        try { await userService.updateProfile(resumeToProfile(resume)); } catch { /* ignore */ } finally { setSaving(false); }
+        window.print();
     };
 
     const renderBody = (type) => {
@@ -268,19 +284,35 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4"><circle cx="12" cy="12" r="9" /><path strokeLinecap="round" d="M12 3a9 9 0 000 18" fill="currentColor" stroke="none" opacity="0.5" /></svg>
                         Design &amp; Font
                     </button>
-                    <button
-                        onClick={download}
-                        disabled={saving}
-                        title="Download PDF"
-                        className="ml-1 inline-flex items-center gap-1.5 rounded-full bg-teal-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-400 disabled:opacity-60"
-                    >
-                        {saving ? (
-                            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" d="M12 3a9 9 0 109 9" /></svg>
-                        ) : (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" /></svg>
-                        )}
-                        {saving ? 'Saving…' : 'Download'}
-                    </button>
+                    {locked ? (
+                        <button
+                            onClick={unlock}
+                            disabled={saving}
+                            title="Unlock this resume (uses one credit)"
+                            className="ml-1 inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700 disabled:opacity-60"
+                        >
+                            {saving ? (
+                                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" d="M12 3a9 9 0 109 9" /></svg>
+                            ) : (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M16 10V7a4 4 0 00-8 0v3M6 10h12a1 1 0 011 1v8a1 1 0 01-1 1H6a1 1 0 01-1-1v-8a1 1 0 011-1z" /></svg>
+                            )}
+                            {saving ? 'Working…' : 'Unlock'}
+                        </button>
+                    ) : (
+                        <button
+                            onClick={download}
+                            disabled={saving}
+                            title="Download PDF"
+                            className="ml-1 inline-flex items-center gap-1.5 rounded-full bg-teal-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-400 disabled:opacity-60"
+                        >
+                            {saving ? (
+                                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" d="M12 3a9 9 0 109 9" /></svg>
+                            ) : (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" /></svg>
+                            )}
+                            {saving ? 'Saving…' : 'Download'}
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -385,8 +417,8 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16 10V7a4 4 0 00-8 0v3M6 10h12a1 1 0 011 1v8a1 1 0 01-1 1H6a1 1 0 01-1-1v-8a1 1 0 011-1z" /></svg>
                                 </span>
                                 <p className="text-base font-bold text-slate-900">Unlock your full resume</p>
-                                <p className="text-sm leading-relaxed text-slate-500">You're seeing a free preview. Upgrade to view every section and download a clean, watermark-free PDF.</p>
-                                <button onClick={() => setPricingOpen(true)} className="mt-1 rounded-full bg-teal-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-teal-400">See plans</button>
+                                <p className="text-sm leading-relaxed text-slate-500">You're seeing a free preview. Unlock this resume to view every section and download a clean, watermark-free PDF.</p>
+                                <button onClick={unlock} disabled={saving} className="mt-1 rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60">{saving ? 'Working…' : 'Unlock resume'}</button>
                             </div>
                         </div>
                     )}
@@ -481,7 +513,7 @@ export default function ResumeWorkspace({ design, initialProfile = null, authed 
             <PricingModal
                 open={pricingOpen}
                 onClose={() => setPricingOpen(false)}
-                onSuccess={() => { setPricingOpen(false); download(); }}
+                onSuccess={() => { setPricingOpen(false); unlock(); }}
                 title="Upgrade to download your resume"
             />
         </div>
