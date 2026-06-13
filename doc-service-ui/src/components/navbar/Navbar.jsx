@@ -510,7 +510,7 @@ export default function Navbar() {
                     <button onClick={() => navigate('/')} className="group flex items-center gap-2.5 outline-none">
                         <BrandLogo height={38} />
                         <span className="text-lg font-medium tracking-[0.14em] text-white transition-opacity group-hover:opacity-90">
-                            NextCV
+                            CareerHub
                         </span>
                     </button>
                 </div>

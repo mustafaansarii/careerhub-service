@@ -5,6 +5,7 @@ import PageHero from '../components/shared/PageHero';
 import ProfileDetailsForm from '../components/profile/ProfileDetailsForm';
 import ResumeUploadButton from '../components/profile/ResumeUploadButton';
 import userService from '../services/user.service';
+import paymentService, { PLAN_CREDITS } from '../services/payment.service';
 
 function initialsOf(profile) {
     const base = (profile?.fullName || profile?.email || '?').trim();
@@ -16,6 +17,7 @@ export default function ProfilePage() {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
+    const [entitlement, setEntitlement] = useState(null);
 
     useEffect(() => {
         (async () => {
@@ -28,6 +30,7 @@ export default function ProfilePage() {
                 setLoading(false);
             }
         })();
+        paymentService.getEntitlement().then(setEntitlement).catch(() => {});
     }, []);
 
     const saveDetails = async (data) => {
@@ -68,14 +71,17 @@ export default function ProfilePage() {
                         <div className="space-y-6">
 
                             <section className="border border-slate-200 bg-white p-6 sm:p-8">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-slate-300 text-xl font-bold text-slate-700">
-                                        {initialsOf(profile)}
+                                <div className="flex flex-wrap items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-slate-300 text-xl font-bold text-slate-700">
+                                            {initialsOf(profile)}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h1 className="truncate text-2xl font-bold text-slate-900">{profile.fullName || 'Your name'}</h1>
+                                            <p className="truncate text-sm text-slate-500">{profile.email || '—'}</p>
+                                        </div>
                                     </div>
-                                    <div className="min-w-0">
-                                        <h1 className="truncate text-2xl font-bold text-slate-900">{profile.fullName || 'Your name'}</h1>
-                                        <p className="truncate text-sm text-slate-500">{profile.email || '—'}</p>
-                                    </div>
+                                    <CreditsBadge entitlement={entitlement} />
                                 </div>
                             </section>
 
@@ -123,6 +129,42 @@ function EmptyDetails({ onAdd }) {
         <div className="flex flex-col items-center justify-center gap-3 border border-dashed border-slate-300 py-12 text-center">
             <p className="text-sm text-slate-500">No resume details yet — add your experience, education and skills once and reuse them everywhere.</p>
             <button onClick={onAdd} className="border border-slate-900 bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Add details</button>
+        </div>
+    );
+}
+
+function CreditsBadge({ entitlement }) {
+    if (!entitlement) return null;
+
+    if (entitlement.unlimited) {
+        return (
+            <div className="border border-teal-200 bg-teal-50 px-4 py-3 text-center">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-teal-600">Downloads</p>
+                <p className="text-lg font-extrabold text-teal-700">Unlimited</p>
+                <p className="text-[11px] text-teal-600">{entitlement.plan} plan</p>
+            </div>
+        );
+    }
+
+    if (entitlement.active) {
+        const total = PLAN_CREDITS[entitlement.plan];
+        const remaining = Math.max(0, entitlement.creditsRemaining ?? 0);
+        return (
+            <div className="border border-slate-200 bg-slate-50 px-4 py-3 text-center">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">Downloads left</p>
+                <p className="text-lg font-extrabold text-slate-900">
+                    {remaining} <span className="text-slate-400">/ {Number.isFinite(total) ? total : '∞'}</span>
+                </p>
+                <p className="text-[11px] text-slate-500">{entitlement.plan} plan</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="border border-slate-200 bg-slate-50 px-4 py-3 text-center">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">Plan</p>
+            <p className="text-lg font-extrabold text-slate-900">Free</p>
+            <a href="/pricing" className="text-[11px] font-semibold text-teal-600 hover:underline">See plans →</a>
         </div>
     );
 }

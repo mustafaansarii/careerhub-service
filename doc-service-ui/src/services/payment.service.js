@@ -11,6 +11,8 @@ export const PLANS = [
 
 export const PLAN_LEVEL = { BASIC: 1, STANDARD: 2, UNLIMITED: 3 };
 
+export const PLAN_CREDITS = { BASIC: 1, STANDARD: 5, UNLIMITED: Infinity };
+
 export function currentPlanLevel(entitlement) {
     return entitlement?.active ? (PLAN_LEVEL[entitlement.plan] || 0) : 0;
 }

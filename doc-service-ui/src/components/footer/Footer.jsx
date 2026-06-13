@@ -33,14 +33,14 @@ export default function Footer() {
                         <Link to="/" className="flex items-center gap-2">
                             <BrandLogo height={38} />
                             <span className="text-lg font-medium tracking-[0.14em] text-white">
-                                NextCV
+                                CareerHub
                             </span>
                         </Link>
                     <p className="text-sm sm:text-slate-300 text-slate-900 max-w-xs">
                             Build ATS-friendly resumes and documents in minutes.
                         </p>
                         <p className="hidden text-sm text-slate-400 md:block">
-                            © {new Date().getFullYear()} NextCV. All rights reserved.
+                            © {new Date().getFullYear()} CareerHub. All rights reserved.
                         </p>
                     </div>
 
@@ -67,7 +67,7 @@ export default function Footer() {
                     ))}
                 </div>
                 <p className="mt-4 -mb-8 text-center text-sm text-slate-400 md:hidden">
-                    © {new Date().getFullYear()} NextCV. All rights reserved.
+                    © {new Date().getFullYear()} CareerHub. All rights reserved.
                 </p>
             </div>
             </div>

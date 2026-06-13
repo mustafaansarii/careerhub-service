@@ -1,6 +1,15 @@
 import Navbar from '../components/navbar/Navbar';
 import PageHero from '../components/shared/PageHero';
 
+function Clause({ children }) {
+    return (
+        <li className="flex gap-3">
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" />
+            <span>{children}</span>
+        </li>
+    );
+}
+
 export default function RefundPolicyPage() {
     return (
         <>
@@ -12,56 +21,43 @@ export default function RefundPolicyPage() {
                 <PageHero
                     breadcrumb="Legal"
                     title="Cancellation & Refund Policy"
-                    description="How cancellations and refunds are handled for purchases on NextCV."
+                    description="How cancellations and refunds work for purchases on CareerHub."
                 />
             </div>
 
             <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-                <p className="text-sm text-slate-400">Last updated on 13-06-2026</p>
+                <p className="text-sm text-slate-400">Last updated on 13 June 2026</p>
 
                 <p className="mt-6 text-sm leading-relaxed text-slate-700">
-                    MUSTAFA ANSARI believes in helping its customers as far as possible, and has therefore a
-                    liberal cancellation policy. Under this policy:
+                    CareerHub provides a digital resume- and document-building service. Plans are one-time
+                    purchases that unlock resume downloads and are valid for one year. Because the service is
+                    digital and delivered instantly, the following cancellation and refund terms apply:
                 </p>
 
-                <ul className="mt-4 space-y-4 text-sm leading-relaxed text-slate-700">
-                    <li className="flex gap-3">
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" />
-                        <span>
-                            Cancellations will be considered only if the request is made immediately after placing
-                            the order. However, the cancellation request may not be entertained if the orders have
-                            been communicated to the vendors/merchants and they have initiated the process of
-                            shipping them.
-                        </span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" />
-                        <span>
-                            MUSTAFA ANSARI does not accept cancellation requests for perishable items like flowers,
-                            eatables etc. However, refund/replacement can be made if the customer establishes that
-                            the quality of product delivered is not good.
-                        </span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" />
-                        <span>
-                            In case of receipt of damaged or defective items please report the same to our Customer
-                            Service team. The request will, however, be entertained once the merchant has checked and
-                            determined the same at his own end. This should be reported within Only same day days of
-                            receipt of the products. In case you feel that the product received is not as shown on the
-                            site or as per your expectations, you must bring it to the notice of our customer service
-                            within Only same day days of receiving the product. The Customer Service Team after
-                            looking into your complaint will take an appropriate decision.
-                        </span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" />
-                        <span>
-                            In case of complaints regarding products that come with a warranty from manufacturers,
-                            please refer the issue to them. In case of any Refunds approved by the MUSTAFA ANSARI,
-                            it&rsquo;ll take 1-2 Days days for the refund to be processed to the end customer.
-                        </span>
-                    </li>
+                <ul className="mt-5 space-y-4 text-sm leading-relaxed text-slate-700">
+                    <Clause>
+                        <strong>Cancellations.</strong> A plan can be cancelled before any download credit has
+                        been used. Once you have used a credit to unlock or download a resume, that purchase is
+                        considered fulfilled and is non-refundable.
+                    </Clause>
+                    <Clause>
+                        <strong>Payment charged but plan not activated.</strong> If your payment succeeded but
+                        your plan or credits were not applied to your account, contact us and we will restore your
+                        access or issue a full refund.
+                    </Clause>
+                    <Clause>
+                        <strong>Duplicate or accidental charges.</strong> If you were charged more than once for
+                        the same purchase, the extra charge will be refunded in full after verification.
+                    </Clause>
+                    <Clause>
+                        <strong>Processing time.</strong> Approved refunds are returned to your original payment
+                        method within 5–7 business days, depending on your bank or payment provider.
+                    </Clause>
+                    <Clause>
+                        <strong>How to request.</strong> For any billing issue or refund request, reach us through
+                        the <a href="/contact-us" className="font-semibold text-teal-600 hover:underline">Contact Us</a> page.
+                        We aim to respond within 2 business days.
+                    </Clause>
                 </ul>
             </main>
         </>

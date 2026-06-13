@@ -27,7 +27,7 @@ export default function AuthLayout({ badge, title, description, features = [], b
                             className="group flex items-center gap-3 outline-none"
                         >
                             <BrandLogo height={38} className="drop-shadow-[0_0_10px_rgba(45,212,191,0.45)]" />
-                            <span className="text-sm font-medium tracking-[0.25em] text-white">NextCV</span>
+                            <span className="text-sm font-medium tracking-[0.25em] text-white">CareerHub</span>
                         </button>
                     </div>
                 </header>
@@ -99,7 +99,7 @@ export default function AuthLayout({ badge, title, description, features = [], b
                     <div className="flex h-14 items-center justify-between px-4">
                         <button onClick={() => navigate('/')} className="group flex items-center gap-3 outline-none">
                             <BrandLogo height={36} />
-                            <span className="text-base font-medium tracking-widest text-white">NextCV</span>
+                            <span className="text-base font-medium tracking-widest text-white">CareerHub</span>
                         </button>
 
                         {breadcrumb && (

@@ -15,7 +15,7 @@ export default function MinimalNavbar() {
                     <BrandLogo height={40} />
 
                     <span className="text-base text-white font-medium tracking-widest">
-                        NextCV
+                        CareerHub
                     </span>
                 </button>
             </nav>
