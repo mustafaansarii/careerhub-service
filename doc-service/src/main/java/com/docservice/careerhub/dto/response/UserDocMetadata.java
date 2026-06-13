@@ -13,6 +13,7 @@ public class UserDocMetadata {
 
     private Long id;
     private Long sourceTemplateId;
+    private String templateCode;
     private String name;
     private DocType type;
     private String description;
