@@ -116,10 +116,10 @@ body::after {
 
 @media (max-width: 640px) {
   .home-page-hero-bg {
-
-    background-size: 100% 100%;
+    background-size: cover;
     background-position: center top;
-    min-height: 0;
+    background-color: rgba(255, 255, 255, 0.241);
+    background-blend-mode: lighten;
   }
 }
 
